@@ -20,6 +20,7 @@ and detemine its range.
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
 typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 #define primescsv "primes.csv"
@@ -211,11 +212,75 @@ void files_remove(void) {
     } 
 }
 
-int main(void) {
+// Default values for command line options
+#define DEFAULT_WINDOW_SIZE 100000
+#define DEFAULT_UPPER_LIMIT 1000000
+
+// Global variables for command line options
+static uint window_size = DEFAULT_WINDOW_SIZE;
+static uint upper_limit = DEFAULT_UPPER_LIMIT;
+static int verbose_flag = 0;
+
+void print_usage(const char *program_name) {
+    printf("Usage: %s [options]\n", program_name);
+    printf("Options:\n");
+    printf("  -w, --window_size <size>   Set window size (default: %d)\n", DEFAULT_WINDOW_SIZE);
+    printf("  -u, --upper_limit <limit>  Set upper limit (default: %d)\n", DEFAULT_UPPER_LIMIT);
+    printf("  -v, --verbose             Enable verbose output\n");
+    printf("  -h, --help                Display this help message\n");
+}
+
+int main(int argc, char *argv[]) {
+    int c;
+    int option_index = 0;
+    
+    static struct option long_options[] = {
+        {"window_size", required_argument, 0, 'w'},
+        {"upper_limit", required_argument, 0, 'u'},
+        {"verbose",     no_argument,       &verbose_flag, 1},
+        {"help",        no_argument,       0, 'h'},
+        {0, 0, 0, 0}
+    };
+
+    while ((c = getopt_long(argc, argv, "w:u:vh", long_options, &option_index)) != -1) {
+        switch (c) {
+            case 'w':
+                window_size = atoi(optarg);
+                if (window_size <= 0) {
+                    fprintf(stderr, "Error: Window size must be positive\n");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'u':
+                upper_limit = atoi(optarg);
+                if (upper_limit <= 0) {
+                    fprintf(stderr, "Error: Upper limit must be positive\n");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'v':
+                verbose_flag = 1;
+                break;
+            case 'h':
+                print_usage(argv[0]);
+                return EXIT_SUCCESS;
+            case '?':
+                // getopt_long already printed an error message
+                return EXIT_FAILURE;
+            default:
+                break;
+        }
+    }
+
+    if (verbose_flag) {
+        printf("Window size: %u\n", window_size);
+        printf("Upper limit: %u\n", upper_limit);
+    }
+
     files_remove();
-    uint window =100000;
-    sieve(window,10*window);
+    sieve(window_size, upper_limit);
     uint count = prime_bin2csv(primesbin, primescsv);
-    printf("records written %u\n",count);
-    return 0;
+    printf("Found %u primes\n", count);
+    
+    return EXIT_SUCCESS;
 }
