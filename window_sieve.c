@@ -4,16 +4,26 @@ a binary file and an array of enum bools as the current window. Visits a
 range of natural numbers utilizing a sliding window. it accumulates primes in the bin file.
 usually upperlimit is 1000000, so it should find 78498 primes.
 Currently utilizes unsigned int. 
+
+~/projects/clang/window_sieve$ ./window_sieve -h
+Usage: ./window_sieve [options]
+Options:
+  -w, --window_size <size>   Set window size (default: 100000)
+  -u, --upper_limit <limit>  Set upper limit (default: 1000000)
+  -v, --verbose             Enable verbose output
+  -h, --help                Display this help message
+
+TODO: wire up the verbose output. 
+
 TODO: need to switch to unsigned long long.
 uint max val:                            4,294,967,295
 unsigned long long max val: 18,446,744,073,709,551,615
 
-TODO: commamdline options, -w 100000  --window_size 100000, -u 1000000  --upper_limit 1000000, 
-                           -f filename   --filename filename,-v --verbose
+ commamdline options, -w 100000  --window_size 100000, -u 1000000  --upper_limit 1000000, 
+                           -v --verbose
 
 TODO: option to start from an existing file of primes. option to validate a file 
 and detemine its range.
-
 */
 
 #include <stdio.h>
@@ -41,6 +51,15 @@ enum Bool {
     false = 0,
     true = 1
 };
+
+// Default values for command line options
+#define DEFAULT_WINDOW_SIZE 100000
+#define DEFAULT_UPPER_LIMIT 1000000
+
+// Global variables for command line options
+static uint window_size = DEFAULT_WINDOW_SIZE;
+static uint upper_limit = DEFAULT_UPPER_LIMIT;
+int verbose_flag = 0;
 
 /*
     open the specified bin file for read and write. does not truncate the file. 
@@ -139,7 +158,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     return count;
 }
 /*
-    Ssieve identifies prime numbers and write them to a file. 
+    Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
 */
 void sieve(const uint buffer_size, const uint upper_limit) {
@@ -154,8 +173,9 @@ void sieve(const uint buffer_size, const uint upper_limit) {
 
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
-        //usleep(500000); // Sleeps for 0.5 seconds
-        fprintf(stderr, "current_window: %u\n",current_window);
+        if (verbose_flag) { 
+            fprintf(stderr, "current_window: %u\n",current_window);
+        }
         memset(is_prime, true, buffer_size * sizeof(enum Bool));
         // read each prime from primes.bin
         // mark prime's composites which occurs in input file
@@ -204,22 +224,17 @@ void sieve(const uint buffer_size, const uint upper_limit) {
 void files_remove(void) {
     int result = remove(primesbin);
     if (result == 0) {
-        printf("primes.bin deleted successfully\n");
+        if (verbose_flag) { 
+            printf("primes.bin deleted successfully\n");
+        }
     }
     result = remove(primescsv);
     if (result == 0) {
-        printf("primes.csv deleted successfully\n");
+        if (verbose_flag) { 
+            printf("primes.csv deleted successfully\n");
+        }
     } 
 }
-
-// Default values for command line options
-#define DEFAULT_WINDOW_SIZE 100000
-#define DEFAULT_UPPER_LIMIT 1000000
-
-// Global variables for command line options
-static uint window_size = DEFAULT_WINDOW_SIZE;
-static uint upper_limit = DEFAULT_UPPER_LIMIT;
-static int verbose_flag = 0;
 
 void print_usage(const char *program_name) {
     printf("Usage: %s [options]\n", program_name);
@@ -272,10 +287,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (verbose_flag) {
-        printf("Window size: %u\n", window_size);
-        printf("Upper limit: %u\n", upper_limit);
-    }
+    printf("Window size: %u\n", window_size);
+    printf("Upper limit: %u\n", upper_limit);
 
     files_remove();
     sieve(window_size, upper_limit);
