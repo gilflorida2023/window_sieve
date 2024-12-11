@@ -35,7 +35,7 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 #define primescsv "primes.csv"
 #define primesbin "primes.bin"
-#define map2buffer(val) ((val) - current_window)
+#define map2buffer(val) ((unsigned int)((val) - current_window))
 
 #if 0
 #define OverflowCheck(val) if ((val) >buffer_size) { perror("arithemetic overflow 1"); \
@@ -43,8 +43,8 @@ typedef unsigned long long ulonglong;
                primescsv); printf("records written %u\n",count); exit(EXIT_FAILURE); }
 #endif
 typedef struct Prime {
-    uint p;
-    uint nextval;
+    ulonglong p;
+    ulonglong nextval;
 } Prime;
 
 enum Bool {
@@ -58,7 +58,8 @@ enum Bool {
 
 // Global variables for command line options
 static uint window_size = DEFAULT_WINDOW_SIZE;
-static uint upper_limit = DEFAULT_UPPER_LIMIT;
+static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
+static int faster_flag = 1;
 int verbose_flag = 0;
 
 /*
@@ -147,8 +148,8 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     // for each record of input
     while (prime_read(input,&p)==1) {
         count ++;
-        fprintf(output, "%u,%u\n", p.p, p.nextval);
-        if (count%10000 == 0){
+        fprintf(output, "%llu,%llu\n", p.p, p.nextval);
+        if (!faster_flag && count%10000 == 0){
             usleep(250000); 
         }
     }
@@ -161,9 +162,9 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
 */
-void sieve(const uint buffer_size, const uint upper_limit) {
+void sieve(const uint buffer_size, const ulonglong upper_limit) {
     Prime cp; //current prime 
-    uint current_window = 0;
+    ulonglong current_window = 0ULL;
     enum Bool *is_prime = (enum Bool *)malloc(buffer_size * sizeof(enum Bool));
     if (is_prime == NULL) {
     // Handle allocation failure
@@ -174,7 +175,7 @@ void sieve(const uint buffer_size, const uint upper_limit) {
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
-            fprintf(stderr, "current_window: %u\n",current_window);
+            fprintf(stderr, "current_window: %llu\n",current_window);
         }
         memset(is_prime, true, buffer_size * sizeof(enum Bool));
         // read each prime from primes.bin
@@ -184,7 +185,7 @@ void sieve(const uint buffer_size, const uint upper_limit) {
             for (;cp.nextval<current_window+buffer_size;cp.nextval +=cp.p){
                 uint val = map2buffer(cp.nextval);
                 //OverflowCheck(val)
-                if (cp.nextval%1000000 == 0){
+                if (!faster_flag && cp.nextval%1000000 == 0){
                     usleep(150000); 
                 }
                 is_prime[val]=false;
@@ -204,7 +205,7 @@ void sieve(const uint buffer_size, const uint upper_limit) {
                 while (cp.nextval < current_window + buffer_size) {
                     uint val = map2buffer(cp.nextval);
                     //OverflowCheck(val)
-                    if (cp.nextval%100000 == 0){
+                    if (!faster_flag && cp.nextval%100000 == 0){
                         usleep(150000); 
                     }
                     is_prime[val] = false ;
@@ -214,7 +215,6 @@ void sieve(const uint buffer_size, const uint upper_limit) {
             }
         }
         rewind(fp);
-        //usleep(500000); // Sleeps for 0.5 seconds
     }
     fflush(fp); // Flush the output file.
     fclose(fp); // close primes.bin
@@ -267,7 +267,8 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'u':
-                upper_limit = atoi(optarg);
+                char *endptr;
+                upper_limit = strtoull(optarg, &endptr, 10);
                 if (upper_limit <= 0) {
                     fprintf(stderr, "Error: Upper limit must be positive\n");
                     return EXIT_FAILURE;
@@ -288,7 +289,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Window size: %u\n", window_size);
-    printf("Upper limit: %u\n", upper_limit);
+    printf("Upper limit: %llu\n", upper_limit);
 
     files_remove();
     sieve(window_size, upper_limit);
