@@ -31,6 +31,7 @@ and detemine its range.
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 #define primescsv "primes.csv"
@@ -47,10 +48,8 @@ typedef struct Prime {
     ulonglong nextval;
 } Prime;
 
-enum Bool {
-    false = 0,
-    true = 1
-};
+#define true 1
+#define false 0
 
 // Default values for command line options
 #define DEFAULT_WINDOW_SIZE 100000
@@ -59,8 +58,8 @@ enum Bool {
 // Global variables for command line options
 static uint window_size = DEFAULT_WINDOW_SIZE;
 static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
-static int faster_flag = 1;
-int verbose_flag = 0;
+static int fast_flag = 0;
+static int verbose_flag = 0;
 
 /*
     open the specified bin file for read and write. does not truncate the file. 
@@ -149,7 +148,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     while (prime_read(input,&p)==1) {
         count ++;
         fprintf(output, "%llu,%llu\n", p.p, p.nextval);
-        if (!faster_flag && count%10000 == 0){
+        if (!fast_flag && count%10000 == 0){
             usleep(250000); 
         }
     }
@@ -165,7 +164,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
 void sieve(const uint buffer_size, const ulonglong upper_limit) {
     Prime cp; //current prime 
     ulonglong current_window = 0ULL;
-    enum Bool *is_prime = (enum Bool *)malloc(buffer_size * sizeof(enum Bool));
+    uchar * is_prime = (uchar *)malloc(buffer_size * sizeof(uchar));
     if (is_prime == NULL) {
     // Handle allocation failure
         perror("Memory allocation failed ");
@@ -177,21 +176,25 @@ void sieve(const uint buffer_size, const ulonglong upper_limit) {
         if (verbose_flag) { 
             fprintf(stderr, "current_window: %llu\n",current_window);
         }
-        memset(is_prime, true, buffer_size * sizeof(enum Bool));
+        memset(is_prime, true, buffer_size * sizeof(uchar));
         // read each prime from primes.bin
         // mark prime's composites which occurs in input file
         // update prime's nextval in primes.bin before proceeding
         while (prime_read(fp,&cp) == 1) {
+            uchar entered_loop = false;
             for (;cp.nextval<current_window+buffer_size;cp.nextval +=cp.p){
+                entered_loop = true;
                 uint val = map2buffer(cp.nextval);
                 //OverflowCheck(val)
-                if (!faster_flag && cp.nextval%1000000 == 0){
+                if (!fast_flag && cp.nextval%1000000 == 0){
                     usleep(150000); 
                 }
                 is_prime[val]=false;
             }
-            prime_unread(fp);
-            prime_write(fp, &cp) ;
+            if (entered_loop) {
+                prime_unread(fp);
+                prime_write(fp, &cp) ;
+            }
         }
         // discover new primes
         // skip 0 and 1, since by definition, they are not prime.
@@ -205,7 +208,7 @@ void sieve(const uint buffer_size, const ulonglong upper_limit) {
                 while (cp.nextval < current_window + buffer_size) {
                     uint val = map2buffer(cp.nextval);
                     //OverflowCheck(val)
-                    if (!faster_flag && cp.nextval%100000 == 0){
+                    if (!fast_flag && cp.nextval%100000 == 0){
                         usleep(150000); 
                     }
                     is_prime[val] = false ;
@@ -242,6 +245,7 @@ void print_usage(const char *program_name) {
     printf("  -w, --window_size <size>   Set window size (default: %d)\n", DEFAULT_WINDOW_SIZE);
     printf("  -u, --upper_limit <limit>  Set upper limit (default: %d)\n", DEFAULT_UPPER_LIMIT);
     printf("  -v, --verbose             Enable verbose output\n");
+    printf("  -f, --fast                Dont periodically yield processor to system.\n");
     printf("  -h, --help                Display this help message\n");
 }
 
@@ -253,11 +257,12 @@ int main(int argc, char *argv[]) {
         {"window_size", required_argument, 0, 'w'},
         {"upper_limit", required_argument, 0, 'u'},
         {"verbose",     no_argument,       &verbose_flag, 1},
+        {"fast",        no_argument,       &fast_flag, 1},
         {"help",        no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "w:u:vh", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "w:u:vfh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
                 window_size = atoi(optarg);
@@ -277,6 +282,9 @@ int main(int argc, char *argv[]) {
             case 'v':
                 verbose_flag = 1;
                 break;
+            case 'f':
+                fast_flag = 1;
+                break;
             case 'h':
                 print_usage(argv[0]);
                 return EXIT_SUCCESS;
@@ -287,7 +295,7 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-
+    printf("created primes.csv and primes.bin\n");
     printf("Window size: %u\n", window_size);
     printf("Upper limit: %llu\n", upper_limit);
 
