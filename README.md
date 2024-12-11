@@ -57,7 +57,7 @@ For each window:
 - `-w, --window_size <size>`: Set window size (default: 100,000)
 - `-u, --upper_limit <limit>`: Set upper limit (default: 1,000,000)
 - `-v, --verbose`: Enable verbose output
-- `-f, --fast`: Disable processing delays
+- `-f, --fast`: Disable processing delays, to increases cpu.
 - `-h, --help`: Display help message
 
 ### Output Files
@@ -72,7 +72,12 @@ For each window:
   - Uses constant ~100KB memory regardless of input size
 
 ## Implementation Notes
-- Uses unsigned integers for number representation
+- Uses unsigned long long for number representation
 - Implements efficient file I/O with buffering
-- Includes optional processing delays for monitoring long runs
+- Includes optional processing delays for lowering cpu
 - Error handling for file operations and memory allocation
+
+## Compilation
+- ./configure
+- make
+
