@@ -8,18 +8,21 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: add missing
-    - run : automake --add-missing
-    - name: configure
+    - name: Check for missing files and add them
+      run: |
+        if ! test -f Makefile.in; then
+          echo "Makefile.in not found. Running automake --add-missing."
+          bash -c "automake --add-missing"
+        fi
+    - name: Configure
       run: ./configure
-    - name: make
+    - name: Make
       run: make
-    - name: make check
+    - name: Test
       run: make check
-    - name: make distcheck
+    - name: Package
       run: make distcheck
