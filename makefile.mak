@@ -12,7 +12,7 @@ run: window_sieve
 	time ./window_sieve -f -v ; tail primes.csv
 
 clean:
-	rm -f window_sieve primes.*
+	rm -f window_sieve window_sieve.o primes.*
 
 .PHONY: all run clean configure
 

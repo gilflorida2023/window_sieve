@@ -10,9 +10,14 @@ clean-local:
 	@rm -f primes.* window-sieve window-sieve.o
 	
 
-window_sieve_CFLAGS = -ftrapv -Wunused -O0 -g3
+window_sieve_CFLAGS = -Wunused -O0 -g3
 
 run: window_sieve
 	time ./window_sieve -f -v ; tail primes.csv
 
 .PHONY: run
+
+.PHONY: clean
+clean:
+	rm -f window_sieve *.o
+
