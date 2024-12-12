@@ -81,6 +81,7 @@ For each window:
 ## gnu build
 ### setup make
 	autoheader
+	aclocal
 	autoconf
 	automake
 	automake --add-missing
