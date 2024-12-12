@@ -90,3 +90,35 @@ For each window:
 ### debug options 
 	./configure --enable-debug
 	make
+
+## regular make
+    $ make -f makefile.mak run
+    gcc -O3 -s -Wall -Werror  -o window_sieve window_sieve.c
+    time ./window_sieve -f -v ; tail primes.csv
+    created primes.csv and primes.bin
+    Window size: 100000
+    Upper limit: 1000000
+    current_window: 0
+    current_window: 100000
+    current_window: 200000
+    current_window: 300000
+    current_window: 400000
+    current_window: 500000
+    current_window: 600000
+    current_window: 700000
+    current_window: 800000
+    current_window: 900000
+    Found 78498 primes
+    0.31user 0.29system 0:00.61elapsed 100%CPU (0avgtext+0avgdata 1664maxresident)k
+    0inputs+4736outputs (0major+99minor)pagefaults 0swaps
+    999863,1999726
+    999883,1999766
+    999907,1999814
+    999917,1999834
+    999931,1999862
+    999953,1999906
+    999959,1999918
+    999961,1999922
+    999979,1999958
+    999983,1999966
+    

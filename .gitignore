@@ -10,3 +10,6 @@ config.status
 *.o
 configure~
 compile
+aclocal.m4
+depcomp
+
