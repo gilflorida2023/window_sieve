@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - nane: add missing
+    - name: add missing
     - run : automake --add-missing
     - name: configure
       run: ./configure
