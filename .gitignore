@@ -12,4 +12,10 @@ configure~
 compile
 aclocal.m4
 depcomp
+Makefile.in
+configure
+install-sh
+missing
+
+
 
