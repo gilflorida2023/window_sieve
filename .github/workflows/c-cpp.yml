@@ -12,12 +12,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Check for missing files and add them
-      run: |
-        if ! test -f Makefile.in; then
-          echo "Makefile.in not found. Running automake --add-missing."
-          bash -c "automake --add-missing"
-        fi
     - name: Configure
       run: ./configure
     - name: Make
