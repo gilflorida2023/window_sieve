@@ -13,6 +13,6 @@ clean-local:
 window_sieve_CFLAGS = -ftrapv -Wunused -O0 -g3
 
 run: window_sieve
-	time ./window_sieve -f -v ; cat primes.csv
+	time ./window_sieve -f -v ; tail primes.csv
 
 .PHONY: run
