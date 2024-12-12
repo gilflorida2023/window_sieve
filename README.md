@@ -77,7 +77,15 @@ For each window:
 - Includes optional processing delays for lowering cpu
 - Error handling for file operations and memory allocation
 
-## Compilation
-- ./configure
-- make
-
+# Compilation
+## gnu build
+### setup make
+	autoheader
+	autoconf
+	automake
+	automake --add-missing
+	./configure
+	make
+### debug options 
+	./configure --enable-debug
+	make
