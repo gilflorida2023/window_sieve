@@ -3,7 +3,7 @@
 # window_sieve
 
 ## Overview
-Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes algorithm for finding prime numbers. Unlike traditional implementations that require memory proportional to the upper limit, this program uses a sliding window approach to find primes up to large numbers while maintaining a constant memory footprint.
+Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes algorithm for finding prime numbers. Unlike traditional implementations that require memory proportional to the upper limit, this program uses a sliding window approach to find primes up to large numbers while maintaining a constant memory footprint. The larger the memory buffer used, the FASTER primes are found. We can reuse that memory buffer so its can identify even more prime numbers. Hence the sliding window.
 
 ## How It Works
 
