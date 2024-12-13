@@ -143,7 +143,9 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     Prime p;
     input = prime_open(inputname);
     output = csv_creat(outputname) ;
-
+    if (verbose_flag) {
+        printf("creating %s from %s\n",outputname,inputname);
+    }
     // for each record of input
     while (prime_read(input,&p)==1) {
         count ++;
@@ -295,11 +297,10 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-    printf("created primes.csv and primes.bin\n");
+    files_remove();
     printf("Window size: %u\n", window_size);
     printf("Upper limit: %llu\n", upper_limit);
 
-    files_remove();
     sieve(window_size, upper_limit);
     uint count = prime_bin2csv(primesbin, primescsv);
     printf("Found %u primes\n", count);
