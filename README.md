@@ -1,3 +1,5 @@
+
+[![CMake on a single platform](https://github.com/gilflorida2023/window_sieve/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/gilflorida2023/window_sieve/actions/workflows/cmake-single-platform.yml)
 # window_sieve
 
 ## Overview
