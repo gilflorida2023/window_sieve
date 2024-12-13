@@ -3,7 +3,7 @@
 # window_sieve
 
 ## Overview
-Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes algorithm for finding prime numbers. Unlike traditional implementations that require memory proportional to the upper limit, this program uses a sliding window approach to find primes up to large numbers while maintaining a constant memory footprint. The larger the memory buffer used, the FASTER primes are found. We can reuse that memory buffer so its can identify even more prime numbers. Hence the sliding window.
+Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes algorithm for finding prime numbers. Unlike traditional implementations that require memory proportional to the upper limit, this program uses a sliding window approach to find primes up to large numbers while maintaining a constant memory footprint.
 
 ## How It Works
 
@@ -125,3 +125,74 @@ For each window:
 	97,194
 	
 	
+## EXECUTIONS
+# Execution 1 10 buffers totalling 100.
+	$ time ./window_sieve -f -v -w 10 -u 100
+	HARDWARE INFO
+	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
+	Number of Cores: 8
+	Total RAM: 31608 GB
+	Free RAM: 25765 GB
+	Used RAM: 5843 GB
+	Load Average: 1-minute: 0.50, 5-minute: 0.75, 15-minute: 0.97
+	primes.bin deleted successfully
+	primes.csv deleted successfully
+	Window size: 10
+	Upper limit: 100
+	current_window: 0
+	current_window: 10
+	current_window: 20
+	current_window: 30
+	current_window: 40
+	current_window: 50
+	current_window: 60
+	current_window: 70
+	current_window: 80
+	current_window: 90
+	creating primes.csv from primes.bin
+	Found 25 primes
+	
+	real    0m0.010s
+	user    0m0.007s
+	sys     0m0.003s
+# EXECUTION 2 2 buffers totalling 100
+	(base) scout@scout:~/projects/clang/window_sieve$ time ./window_sieve -f -v -w 50 -u 100
+	HARDWARE INFO
+	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
+	Number of Cores: 8
+	Total RAM: 31608 GB
+	Free RAM: 25768 GB
+	Used RAM: 5840 GB
+	Load Average: 1-minute: 0.39, 5-minute: 0.71, 15-minute: 0.95
+	primes.bin deleted successfully
+	primes.csv deleted successfully
+	Window size: 50
+	Upper limit: 100
+	current_window: 0
+	current_window: 50
+	creating primes.csv from primes.bin
+	Found 25 primes
+	
+	real    0m0.013s
+	user    0m0.007s
+	sys     0m0.006s
+# EXECUTION 3 100 byte buffer totalling 100. does 1 iteratoin.
+	(base) scout@scout:~/projects/clang/window_sieve$ time ./window_sieve -f -v -w 100 -u 100
+	HARDWARE INFO
+	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
+	Number of Cores: 8
+	Total RAM: 31608 GB
+	Free RAM: 25758 GB
+	Used RAM: 5849 GB
+	Load Average: 1-minute: 0.56, 5-minute: 0.73, 15-minute: 0.95
+	primes.bin deleted successfully
+	primes.csv deleted successfully
+	Window size: 100
+	Upper limit: 100
+	current_window: 0
+	creating primes.csv from primes.bin
+	Found 25 primes
+	
+	real    0m0.012s
+	user    0m0.001s
+	sys     0m0.011s
