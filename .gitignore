@@ -3,6 +3,7 @@ primes.csv
 .vscode
 primes.bin
 .deps/
+build/
 Makefile
 autom4te.cache/
 config.log
