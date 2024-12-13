@@ -13,15 +13,6 @@ Options:
   -v, --verbose             Enable verbose output
   -h, --help                Display this help message
 
-TODO: wire up the verbose output. 
-
-TODO: need to switch to unsigned long long.
-uint max val:                            4,294,967,295
-unsigned long long max val: 18,446,744,073,709,551,615
-
- commamdline options, -w 100000  --window_size 100000, -u 1000000  --upper_limit 1000000, 
-                           -v --verbose
-
 TODO: option to start from an existing file of primes. option to validate a file 
 and detemine its range.
 */
@@ -31,6 +22,68 @@ and detemine its range.
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/sysinfo.h>
+
+int  hardware_info() {
+    FILE * cpuinfo;
+    cpuinfo  = fopen("/proc/cpuinfo", "r");
+    if (cpuinfo == NULL) {
+        perror("Error opening /proc/cpuinfo");
+        return 1;
+    }
+    printf("HARDWARE INFO\n");
+
+    char line[666];
+    int count=0;
+    while (fgets(line, sizeof(line), cpuinfo) != NULL) {
+        // Check for model name
+        if (strstr(line, "model name")) {
+            if (count == 0) {
+		        printf("Model Name: %s", strchr(line, ':') + 2);
+	        }
+	    count ++;
+        }
+    }
+    printf("Number of Cores: %d\n", count);
+    fclose(cpuinfo);
+
+
+    // sysinfo
+    struct sysinfo info;
+
+    if (sysinfo(&info) == 0) {
+        printf("Total RAM: %lu GB\n", info.totalram / (1024*1024));
+        printf("Free RAM: %lu GB\n", info.freeram / (1024*1024));
+        printf("Used RAM: %lu GB\n", (info.totalram - info.freeram) / (1024*1024));
+    } else {
+        perror("sysinfo");
+        return 1;
+    }
+
+    // load average
+    FILE *fp;
+    double load1, load5, load15;
+
+    fp = fopen("/proc/loadavg", "r");
+    if (fp == NULL) {
+        perror("fopen");
+        return 1;
+    }
+
+    if (fscanf(fp, "%lf %lf %lf", &load1, &load5, &load15) != 3) {
+        perror("fscanf");
+        fclose(fp);
+        return 1;
+    }
+
+    fclose(fp);
+
+    printf("Load Average: 1-minute: %.2f, 5-minute: %.2f, 15-minute: %.2f\n", load1, load5, load15);
+
+    return 0;
+
+}
+
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned long long ulonglong;
@@ -38,11 +91,6 @@ typedef unsigned long long ulonglong;
 #define primesbin "primes.bin"
 #define map2buffer(val) ((unsigned int)((val) - current_window))
 
-#if 0
-#define OverflowCheck(val) if ((val) >buffer_size) { perror("arithemetic overflow 1"); \
-               fflush(fp); fclose(fp); free(is_prime); uint count = prime_bin2csv(primesbin, \
-               primescsv); printf("records written %u\n",count); exit(EXIT_FAILURE); }
-#endif
 typedef struct Prime {
     ulonglong p;
     ulonglong nextval;
@@ -296,6 +344,10 @@ int main(int argc, char *argv[]) {
             default:
                 break;
         }
+    }
+
+    if (verbose_flag == true) {
+        hardware_info();
     }
     files_remove();
     printf("Window size: %u\n", window_size);
