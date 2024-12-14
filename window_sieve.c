@@ -23,19 +23,11 @@ and detemine its range.
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/sysinfo.h>
+#include <window_sieve.h>
 #include <hardware_info.h>
-
-typedef unsigned char uchar;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-#define primescsv "primes.csv"
-#define primesbin "primes.bin"
+#include <trial_division.h>
 #define map2buffer(val) ((unsigned int)((val) - current_window))
 
-typedef struct Prime {
-    ulonglong p;
-    ulonglong nextval;
-} Prime;
 
 #define true 1
 #define false 0
@@ -122,7 +114,7 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
-
+#if 0
 /*
     convert the prime bin file into a csv and return the number of records processed.
 */
@@ -148,6 +140,36 @@ size_t prime_bin2csv(char *inputname ,char * outputname) {
     fclose(output);
     return count;
 }
+#else
+
+size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar check_flag) {
+    FILE * input, * output;
+    size_t count=0;
+    Prime p;
+    input = prime_open(inputname);
+    output = csv_creat(outputname) ;
+    if (verbose_flag) {
+        printf("creating %s from %s\n",outputname,inputname);
+    }
+    // for each record of input
+    while (prime_read(input,&p)==1) {
+        count ++;
+        if (check_flag){
+            char * primecode = check_prime(p.p);
+            fprintf(output, "%llu,%llu,%s\n", p.p, p.nextval,primecode);
+        } else {
+            fprintf(output, "%llu,%llu\n", p.p, p.nextval);
+        }
+        if (!fast_flag && count%10000 == 0){
+            usleep(250000); 
+        }
+    }
+    fclose(input);
+    fflush(output);
+    fclose(output);
+    return count;
+}
+#endif
 /*
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
@@ -240,9 +262,11 @@ void print_usage(const char *program_name) {
     printf("  -h, --help                Display this help message\n");
 }
 
+#ifndef TD_TEST
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
+    uchar check_flag = 1;
     
     static struct option long_options[] = {
         {"window_size", required_argument, 0, 'w'},
@@ -295,8 +319,10 @@ int main(int argc, char *argv[]) {
     printf("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
-    uint count = prime_bin2csv(primesbin, primescsv);
+//size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar check_flag) ;
+    uint count = prime_bin2csv(primesbin, primescsv,verbose_flag,fast_flag,check_flag);
     printf("Found %u primes\n", count);
     
     return EXIT_SUCCESS;
 }
+#endif
