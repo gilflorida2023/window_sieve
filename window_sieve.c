@@ -3,7 +3,7 @@ performs a prime sieve which will utilize no data structure except
 a binary file and an array of enum bools as the current window. Visits a
 range of natural numbers utilizing a sliding window. it accumulates primes in the bin file.
 usually upperlimit is 1000000, so it should find 78498 primes.
-Currently utilizes unsigned int. 
+Currently utilizes unsigned long long. 
 
 ~/projects/clang/window_sieve$ ./window_sieve -h
 Usage: ./window_sieve [options]
