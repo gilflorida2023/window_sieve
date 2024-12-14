@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "w:u:vfh", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "w:u:vcfh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
                 window_size = atoi(optarg);
