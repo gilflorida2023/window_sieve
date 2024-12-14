@@ -51,14 +51,7 @@ void print_cpu_info(FILE *cpufile) {
         if (strstr(line, "model name") != NULL ) {
             if (core_count ==0 ) {printf("Model Name: %s", strchr(line, ':') + 2);}
             core_count++;
-        } else if (strstr(line, "cpu cores") != NULL) {
-            char *endptr;
-            long cores = strtol(strchr(line, ':') + 1, &endptr, 10);
-            if (endptr > strchr(line, ':')) {
-                printf("Number of Cores: %ld\n", cores);
-                return; // Exit early after finding number of cores
-            }
-        }
+        } 
     }
 
     // If "cpu cores" is not found, assume single core for each model name line
