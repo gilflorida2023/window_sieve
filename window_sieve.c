@@ -41,6 +41,7 @@ static uint window_size = DEFAULT_WINDOW_SIZE;
 static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
 static int fast_flag = 0;
 static int verbose_flag = 0;
+static int check_flag = 0;
 
 /*
     open the specified bin file for read and write. does not truncate the file. 
@@ -114,34 +115,9 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
-#if 0
 /*
     convert the prime bin file into a csv and return the number of records processed.
 */
-size_t prime_bin2csv(char *inputname ,char * outputname) {
-    FILE * input, * output;
-    size_t count=0;
-    Prime p;
-    input = prime_open(inputname);
-    output = csv_creat(outputname) ;
-    if (verbose_flag) {
-        printf("creating %s from %s\n",outputname,inputname);
-    }
-    // for each record of input
-    while (prime_read(input,&p)==1) {
-        count ++;
-        fprintf(output, "%llu,%llu\n", p.p, p.nextval);
-        if (!fast_flag && count%10000 == 0){
-            usleep(250000); 
-        }
-    }
-    fclose(input);
-    fflush(output);
-    fclose(output);
-    return count;
-}
-#else
-
 size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar check_flag) {
     FILE * input, * output;
     size_t count=0;
@@ -169,7 +145,6 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
     fclose(output);
     return count;
 }
-#endif
 /*
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
@@ -183,7 +158,6 @@ void sieve(const uint buffer_size, const ulonglong upper_limit) {
         perror("Memory allocation failed ");
         exit(EXIT_FAILURE);
     }
-
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
@@ -216,7 +190,6 @@ void sieve(const uint buffer_size, const ulonglong upper_limit) {
             //OverflowCheck(val)
             if (is_prime[val]) {
                 cp.nextval = cp.p + cp.p;
-    
                 // Mark multiples of p as not prime
                 while (cp.nextval < current_window + buffer_size) {
                     uint val = map2buffer(cp.nextval);
@@ -257,21 +230,22 @@ void print_usage(const char *program_name) {
     printf("Options:\n");
     printf("  -w, --window_size <size>   Set window size (default: %d)\n", DEFAULT_WINDOW_SIZE);
     printf("  -u, --upper_limit <limit>  Set upper limit (default: %d)\n", DEFAULT_UPPER_LIMIT);
-    printf("  -v, --verbose             Enable verbose output\n");
-    printf("  -f, --fast                Dont periodically yield processor to system.\n");
-    printf("  -h, --help                Display this help message\n");
+    printf("  -v, --verbose              Enable verbose output\n");
+    printf("  -c, --check                Check validity of prime with trial division.\n");
+    printf("  -f, --fast                 Dont periodically yield processor to system.\n");
+    printf("  -h, --help                 Display this help message\n");
 }
 
 #ifndef TD_TEST
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
-    uchar check_flag = 1;
     
     static struct option long_options[] = {
         {"window_size", required_argument, 0, 'w'},
         {"upper_limit", required_argument, 0, 'u'},
         {"verbose",     no_argument,       &verbose_flag, 1},
+        {"check",       no_argument,       &check_flag, 1},
         {"fast",        no_argument,       &fast_flag, 1},
         {"help",        no_argument,       0, 'h'},
         {0, 0, 0, 0}
@@ -294,6 +268,9 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
                 break;
+            case 'c':
+                check_flag = 1;
+                break;
             case 'v':
                 verbose_flag = 1;
                 break;
@@ -304,7 +281,6 @@ int main(int argc, char *argv[]) {
                 print_usage(argv[0]);
                 return EXIT_SUCCESS;
             case '?':
-                // getopt_long already printed an error message
                 return EXIT_FAILURE;
             default:
                 break;
@@ -319,7 +295,6 @@ int main(int argc, char *argv[]) {
     printf("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
-//size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar check_flag) ;
     uint count = prime_bin2csv(primesbin, primescsv,verbose_flag,fast_flag,check_flag);
     printf("Found %u primes\n", count);
     
