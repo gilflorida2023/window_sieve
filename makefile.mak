@@ -1,12 +1,16 @@
-CC = gcc
-RELEASE = -O3 -s -Wall -I . 
+CC = gcc 
+RELEASE = -O3 -s -Wall -I include  # Add -I include to specify the include directory
 #-Werror 
 DEBUG = -g3 -O0 -Wall -Werror
 CFLAGS = $(RELEASE)
 
+# Specify source files in the src directory
+SRCDIR = src
+SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c
+
 all: window_sieve
 
-window_sieve: window_sieve.c hardware_info.c trial_division.c
+window_sieve: $(SOURCES)
 	$(CC) $(CFLAGS) -o $@ $^
 
 run: window_sieve
@@ -19,3 +23,4 @@ clean:
 
 build: window_sieve
 	$(MAKE) window_sieve
+
