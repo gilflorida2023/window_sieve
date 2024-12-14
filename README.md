@@ -156,7 +156,7 @@ For each window:
 	user    0m0.007s
 	sys     0m0.003s
 # EXECUTION 2 2 buffers totalling 100
-	(base) scout@scout:~/projects/clang/window_sieve$ time ./window_sieve -f -v -w 50 -u 100
+	$ time ./window_sieve -f -v -w 50 -u 100
 	HARDWARE INFO
 	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
 	Number of Cores: 8
@@ -177,7 +177,7 @@ For each window:
 	user    0m0.007s
 	sys     0m0.006s
 # EXECUTION 3 100 byte buffer totalling 100. does 1 iteratoin.
-	(base) scout@scout:~/projects/clang/window_sieve$ time ./window_sieve -f -v -w 100 -u 100
+	$ time ./window_sieve -f -v -w 100 -u 100
 	HARDWARE INFO
 	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
 	Number of Cores: 8
