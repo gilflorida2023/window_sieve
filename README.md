@@ -19,10 +19,10 @@ Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes a
 
 ### Data Structures
 1. **Binary File (primes.bin)**
-   - Persistent storage for discovered primes
+   - Persistent storage for discovered primes. the next val points past the current buffer into the next.
    - Each record contains:
      - `p`: The prime number
-     - `nextval`: Next multiple of this prime to be marked as composite
+     - `nextval`: Next multiple of this prime to be marked as composite. multiples are calculated by adding p+p.
 
 2. **Window Buffer**
    - Boolean array representing primality of numbers in current window
@@ -38,7 +38,7 @@ For each window:
 2. Read each prime (p) from primes.bin
 3. Mark composites: For each prime p
    - Start from p.nextval
-   - Mark all its multiples as composite within current window
+   - Mark all its multiples p+p as composite within current window
    - Update p.nextval for next window
 4. Discover new primes in current window
    - For each unmarked number n
