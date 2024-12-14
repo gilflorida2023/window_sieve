@@ -59,7 +59,7 @@ For each window:
 - `-w, --window_size <size>`: Set window size (default: 100,000)
 - `-u, --upper_limit <limit>`: Set upper limit (default: 1,000,000)
 - `-v, --verbose`: Enable verbose output
-- `-c, --check : check the primes in the binary file and make sure they are prime.
+- `-c, --check`: check the primes in the binary file and make sure they are prime.
 - `-f, --fast`: Disable processing delays, to increases cpu.
 - `-h, --help`: Display help message
 
