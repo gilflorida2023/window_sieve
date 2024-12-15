@@ -96,8 +96,56 @@ For each window:
  	make
   	time ./window_sieve -f -v
    	tail primes.csv
-### Install
+## Makefile
+### build and run
+	$ make run 
+	time ./window_sieve -f -v -c; tail primes.csv
+	=================================
+	HARDWARE INFO
+	Model Name: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz
+	Number of Cores: 8
+	Total RAM: 31608 GB
+	Free RAM: 9485 GB
+	Used RAM: 22123 GB
+	Load Average: 1-minute: 0.11, 5-minute: 0.09, 15-minute: 0.23
+	=================================
+	Window size: 100000
+	Upper limit: 1000000
+	current_window: 0
+	current_window: 100000
+	current_window: 200000
+	current_window: 300000
+	current_window: 400000
+	current_window: 500000
+	current_window: 600000
+	current_window: 700000
+	current_window: 800000
+	current_window: 900000
+	creating primes.csv from primes.bin
+	Found 78498 primes
+	1.34user 0.34system 0:01.69elapsed 99%CPU (0avgtext+0avgdata 1648maxresident)k
+	0inputs+5656outputs (0major+107minor)pagefaults 0swaps
+	999863,1999726,PRIME
+	999883,1999766,PRIME
+	999907,1999814,PRIME
+	999917,1999834,PRIME
+	999931,1999862,PRIME
+	999953,1999906,PRIME
+	999959,1999918,PRIME
+	999961,1999922,PRIME
+	999979,1999958,PRIME
+	999983,1999966,PRIME
 
+### Install to system
+	$ sudo make install
+	[sudo] password for yourcomputer:            
+	mkdir -p /usr/local/bin
+	cp window_sieve /usr/local/bin
+
+### install locally
+	$ make install INSTALL_DIR=/home/scout/projects/bin
+	mkdir -p /home/scout/projects/bin
+	cp window_sieve /home/scout/projects/bin
 
 ### EXECUTION
 	time window_sieve -f -v -w 10 -u 100;tail primes.csv
