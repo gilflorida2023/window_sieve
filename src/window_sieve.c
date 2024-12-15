@@ -26,6 +26,13 @@ and detemine its range.
 #include <window_sieve.h>
 #include <hardware_info.h>
 #include <trial_division.h>
+
+#include <stdio.h>
+#include <time.h>
+#include <stdarg.h>
+
+
+
 #define map2buffer(val) ((unsigned int)((val) - current_window))
 
 
@@ -42,6 +49,21 @@ static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
 static int fast_flag = 0;
 static int verbose_flag = 0;
 static int check_flag = 0;
+
+void timestamp_printf(const char *format, ...) {
+    time_t now = time(NULL);
+    struct tm *tm = localtime(&now);
+
+    char timestamp[80];
+    strftime(timestamp, sizeof(timestamp), "%FT%T%z", tm);
+
+    printf("%s: ", timestamp);
+
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+}
 
 /*
     open the specified bin file for read and write. does not truncate the file. 
@@ -125,7 +147,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
     input = prime_open(inputname);
     output = csv_creat(outputname) ;
     if (verbose_flag) {
-        printf("creating %s from %s\n",outputname,inputname);
+        timestamp_printf("creating %s from %s\n",outputname,inputname);
     }
     // for each record of input
     while (prime_read(input,&p)==1) {
@@ -161,7 +183,7 @@ void sieve(const uint buffer_size, const ulonglong upper_limit) {
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
-            fprintf(stderr, "current_window: %llu\n",current_window);
+            timestamp_printf("current_window: %llu\n",current_window);
         }
         memset(is_prime, true, buffer_size * sizeof(uchar));
         // read each prime from primes.bin
@@ -214,13 +236,13 @@ void files_remove(void) {
     int result = remove(primesbin);
     if (result == 0) {
         if (verbose_flag) { 
-            printf("primes.bin deleted successfully\n");
+            timestamp_printf("primes.bin deleted successfully\n");
         }
     }
     result = remove(primescsv);
     if (result == 0) {
         if (verbose_flag) { 
-            printf("primes.csv deleted successfully\n");
+            timestamp_printf("primes.csv deleted successfully\n");
         }
     } 
 }
@@ -291,12 +313,12 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    printf("Window size: %u\n", window_size);
-    printf("Upper limit: %llu\n", upper_limit);
+    timestamp_printf("Window size: %u\n", window_size);
+    timestamp_printf("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
     uint count = prime_bin2csv(primesbin, primescsv,verbose_flag,fast_flag,check_flag);
-    printf("Found %u primes\n", count);
+    timestamp_printf("Found %u primes\n", count);
     
     return EXIT_SUCCESS;
 }
