@@ -86,10 +86,17 @@ For each window:
 	mkdir build
 	cd build
 	cmake .. -DCMAKE_BUILD_TYPE=Release
+ 	make
+  	time ./window_sieve -f -v
+   	tail primes.csv
 ### Debug build
 	mkdir build
 	cd build
 	cmake .. -DCMAKE_BUILD_TYPE=Debug
+ 	make
+  	time ./window_sieve -f -v
+   	tail primes.csv
+### Install
 
 
 ### EXECUTION
