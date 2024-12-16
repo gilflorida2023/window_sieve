@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 
 /*
 performs a prime sieve which will utilize no data structure except
@@ -19,6 +18,7 @@ TODO: option to start from an existing file of primes. option to validate a file
 and detemine its range.
 */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -30,6 +30,8 @@ and detemine its range.
 #include <trial_division.h>
 #include <time.h>
 #include <stdarg.h>
+#include <time.h>
+#include <sys/time.h>
 
 #define PRINTF timestamp_printf
 #define map2buffer(val) ((unsigned int)((val) - current_window))
@@ -49,12 +51,6 @@ static int fast_flag = 0;
 static int verbose_flag = 0;
 static int check_flag = 0;
 
-#if 1
-#include <stdio.h>
-#include <stdarg.h>
-#include <time.h>
-#include <sys/time.h>
-#include <string.h>
 
 void timestamp_printf(const char *format, ...) {
     struct timeval tv;
@@ -78,22 +74,6 @@ void timestamp_printf(const char *format, ...) {
     vprintf(format, args);
     va_end(args);
 }
-#else
-void timestamp_printf(const char *format, ...) {
-    time_t now = time(NULL);
-    struct tm *tm = localtime(&now);
-
-    char timestamp[30];
-    strftime(timestamp, sizeof(timestamp), "%FT%T%z", tm);
-
-    printf("%s ", timestamp);
-
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-}
-#endif
 
 
 /*
