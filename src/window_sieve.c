@@ -287,7 +287,9 @@ int main(int argc, char *argv[]) {
     while ((c = getopt_long(argc, argv, "w:u:vcfh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
-                window_size = atoi(optarg);
+                //window_size = atoi(optarg);#include <stdlib.h>
+                window_size = strtoull(optarg, NULL, 10);
+
                 if (window_size <= 0) {
                     fprintf(stderr, "Error: Window size must be positive\n");
                     return EXIT_FAILURE;
