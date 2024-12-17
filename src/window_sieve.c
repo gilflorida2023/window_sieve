@@ -45,7 +45,7 @@ and detemine its range.
 #define DEFAULT_UPPER_LIMIT 1000000
 
 // Global variables for command line options
-static uint window_size = DEFAULT_WINDOW_SIZE;
+static ulonglong  window_size = DEFAULT_WINDOW_SIZE;
 static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
 static int fast_flag = 0;
 static int verbose_flag = 0;
@@ -283,25 +283,15 @@ int main(int argc, char *argv[]) {
         {"help",        no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
+    char *endptr;
 
     while ((c = getopt_long(argc, argv, "w:u:vcfh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
-                //window_size = atoi(optarg);#include <stdlib.h>
-                window_size = strtoull(optarg, NULL, 10);
-
-                if (window_size <= 0) {
-                    fprintf(stderr, "Error: Window size must be positive\n");
-                    return EXIT_FAILURE;
-                }
+                window_size = strtoull(optarg, &endptr, 10);
                 break;
             case 'u':
-                char *endptr;
                 upper_limit = strtoull(optarg, &endptr, 10);
-                if (upper_limit <= 0) {
-                    fprintf(stderr, "Error: Upper limit must be positive\n");
-                    return EXIT_FAILURE;
-                }
                 break;
             case 'c':
                 check_flag = 1;
@@ -326,7 +316,7 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %u\n", window_size);
+    PRINTF("Window size: %llu\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
