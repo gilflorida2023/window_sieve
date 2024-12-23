@@ -100,7 +100,7 @@ loadaverage read_load_average(const char *filename) {
     return la;
 }
 
-#ifdef TEST
+#ifdef skip
 int main() {
     if (hardware_info() != 0) {
         printf("Failed to retrieve hardware information.\n");

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -67,10 +68,11 @@ int main(void) {
     return 0;
 }
 #endif
-#ifdef TD_TEST
+#ifdef SKIP
 int main(void) {
     size_t count = prime_bin2csv(primesbin,primescsv,0,0,0); 
     printf("%lu records written to csv %s from binary file %s\n",count,primescsv,primesbin)  ;
     return 0;
 }
 #endif
+

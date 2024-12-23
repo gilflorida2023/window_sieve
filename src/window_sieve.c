@@ -1,4 +1,4 @@
-
+#define SKIP
 /*
 performs a prime sieve which will utilize no data structure except
 a binary file and an array of enum bools as the current window. Visits a
@@ -148,6 +148,7 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
+#ifdef SKIP
 /*
     convert the prime bin file into a csv and return the number of records processed.
 */
@@ -178,6 +179,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
     fclose(output);
     return count;
 }
+#endif
 /*
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
@@ -258,6 +260,7 @@ void files_remove(void) {
     } 
 }
 
+#ifdef WINDOW_SIEVE_MAIN
 void print_usage(const char *program_name) {
     printf("Usage: %s [options]\n", program_name);
     printf("Options:\n");
@@ -269,7 +272,6 @@ void print_usage(const char *program_name) {
     printf("  -h, --help                 Display this help message\n");
 }
 
-#ifndef TD_TEST
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
@@ -329,7 +331,7 @@ int main(int argc, char *argv[]) {
 
     sieve(window_size, upper_limit);
     uint count = prime_bin2csv(primesbin, primescsv,verbose_flag,fast_flag,check_flag);
-    PRINTF("Found %u primes\n", count);
+    PRINTF("converted %u primes\n", count);
     
     return EXIT_SUCCESS;
 }
