@@ -53,7 +53,11 @@ static int fast_flag = 0;
 static int verbose_flag = 0;
 static int check_flag = 0;
 
-
+/*
+  Accepts same parameters as printf, but it puts a date time in front of the message.
+  its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
+  #define PRINTF timestamp_printf
+*/
 void timestamp_printf(const char *format, ...) {
     struct timeval tv;
     gettimeofday(&tv, NULL); // Get the current time with microsecond precision
@@ -140,7 +144,9 @@ int prime_unread(FILE * fp) {
     }
     return rc;
 }
-
+/*
+    create the csv file, trunc if it exists.
+*/
 FILE * csv_creat(char * filename) {
     FILE *fp = fopen(filename,"w");
     // Check if the file was opened successfully
@@ -349,7 +355,7 @@ int main(int argc, char *argv[]) {
     if (verbose_flag == true) {
         hardware_info();
     }
-    files_remove();
+    //files_remove();
     PRINTF("Window size: %ld\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
 
