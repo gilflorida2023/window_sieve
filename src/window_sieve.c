@@ -32,6 +32,8 @@ and detemine its range.
 #include <stdarg.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdint.h>
+#include <errno.h>
 
 #define PRINTF timestamp_printf
 #define map2buffer(val) ((unsigned int)((val) - current_window))
@@ -45,7 +47,7 @@ and detemine its range.
 #define DEFAULT_UPPER_LIMIT 1000000
 
 // Global variables for command line options
-static uint window_size = DEFAULT_WINDOW_SIZE;
+static size_t window_size = DEFAULT_WINDOW_SIZE;
 static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
 static int fast_flag = 0;
 static int verbose_flag = 0;
@@ -184,10 +186,13 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
 */
-void sieve(const uint buffer_size, const ulonglong upper_limit) {
+void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     Prime cp; //current prime 
     ulonglong current_window = 0ULL;
     uchar * is_prime = (uchar *)malloc(buffer_size * sizeof(uchar));
+    if (verbose_flag) {
+        PRINTF("MALLOCED SIZE: %ld\n",buffer_size*sizeof(uchar));
+    }
     if (is_prime == NULL) {
     // Handle allocation failure
         perror("Memory allocation failed ");
@@ -285,21 +290,40 @@ int main(int argc, char *argv[]) {
         {"help",        no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
+    char *endptr;
 
     while ((c = getopt_long(argc, argv, "w:u:vcfh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
-                window_size = atoi(optarg);
-                if (window_size <= 0) {
-                    fprintf(stderr, "Error: Window size must be positive\n");
-                    return EXIT_FAILURE;
+             errno = 0;  // Reset errno before the call
+            
+                unsigned long long value = strtoull(optarg, &endptr, 10);
+            
+                if (errno == ERANGE) {
+                    printf("Overflow occurred\n");
+                    return 1;
                 }
+            
+                if (*endptr != '\0') {
+                    printf("Invalid input: not a number\n");
+                    return 1;
+                }
+            
+                if (value > SIZE_MAX) {
+                    printf("Value too large for size_t\n");
+                    return 1;
+                }
+            
+                window_size = (size_t)value;
+                if (window_size <5) {
+                    fprintf(stderr, "Error: Window size must greater than five.\n");
+                    return EXIT_FAILURE;
+                } 
                 break;
             case 'u':
-                char *endptr;
                 upper_limit = strtoull(optarg, &endptr, 10);
-                if (upper_limit <= 0) {
-                    fprintf(stderr, "Error: Upper limit must be positive\n");
+                if (upper_limit < window_size) {
+                    fprintf(stderr, "Error: Upper limit %llu should be greater than or equal to window_size %ld.\n",upper_limit,window_size);
                     return EXIT_FAILURE;
                 }
                 break;
@@ -326,7 +350,7 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %u\n", window_size);
+    PRINTF("Window size: %ld\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
