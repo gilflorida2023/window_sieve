@@ -1,3 +1,6 @@
+#include <stddef.h>
+#include <stdio.h>
+
 #ifndef __WINDOW_SIEVE__
 #define __WINDOW_SIEVE__
 typedef unsigned char uchar;

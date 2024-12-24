@@ -1,4 +1,3 @@
-#define SKIP
 /*
 performs a prime sieve which will utilize no data structure except
 a binary file and an array of enum bools as the current window. Visits a
@@ -19,21 +18,21 @@ and detemine its range.
 */
 
 #define _GNU_SOURCE
+#include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/sysinfo.h>
-#include <window_sieve.h>
-#include <hardware_info.h>
-#include <trial_division.h>
 #include <time.h>
 #include <stdarg.h>
-#include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
 #include <errno.h>
+#include <window_sieve.h>
+#include <hardware_info.h>
+#include <trial_division.h>
 
 #define PRINTF timestamp_printf
 #define map2buffer(val) ((unsigned int)((val) - current_window))
@@ -156,6 +155,7 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
+#define SKIP
 #ifdef SKIP
 /*
     convert the prime bin file into a csv and return the number of records processed.

@@ -1,17 +1,19 @@
 CC = gcc 
 RELEASE = -O3 -s -Wall -I include
-DEBUG = -g3 -O0 -Wall -Werror
+DEBUG = -g3 -O0 -Wall -Werror -I include
 CFLAGS = $(RELEASE)
 
 SRCDIR = src
-SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c
+INCDIR = include
+SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c
+SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h
 
 # Default install directory
 INSTALL_DIR = /usr/local/bin
 
 all: window_sieve
 
-window_sieve: $(SOURCES)
+window_sieve: $(SIEVE_SOURCES) $(SIEVE_HEADERS)
 	$(CC) $(CFLAGS) -DWINDOW_SIEVE_MAIN -o $@ $^
 
 run: window_sieve
