@@ -355,18 +355,18 @@ int main(int argc, char *argv[]) {
                 unsigned long long value = strtoull(optarg, &endptr, 10);
             
                 if (errno == ERANGE) {
-                    printf("Overflow occurred\n");
-                    return 1;
+                    fprintf(stderr,"Overflow occurred\n");
+                    return EXIT_FAILURE;
                 }
             
                 if (*endptr != '\0') {
-                    printf("Invalid input: not a number\n");
-                    return 1;
+                    fprintf(stderr,"Invalid input: not a number\n");
+                    return EXIT_FAILURE;
                 }
             
                 if (value > SIZE_MAX) {
-                    printf("Value too large for size_t\n");
-                    return 1;
+                    fprintf(stderr,"Value too large for size_t\n");
+                    return EXIT_FAILURE;
                 }
             
                 window_size = (size_t)value;
@@ -379,6 +379,10 @@ int main(int argc, char *argv[]) {
                 upper_limit = strtoull(optarg, &endptr, 10);
                 if (upper_limit < window_size) {
                     fprintf(stderr, "Error: Upper limit %llu should be greater than or equal to window_size %ld.\n",upper_limit,window_size);
+                    return EXIT_FAILURE;
+                }
+                if (*endptr != '\0') {
+                    fprintf(stderr,"Invalid input: not a number\n");
                     return EXIT_FAILURE;
                 }
                 break;

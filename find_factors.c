@@ -57,9 +57,8 @@ int find_factors(int n, int *num_factors) {
 
 int main() {
     int num;
-    //const int start = 492113;
-    const int start = 127;
-    const int end = 10000000;
+    const int start = 2;
+    const int end = 1000000;
 
     for(int num=start;num <= end; num++) {
         int  num_factors;
@@ -74,11 +73,21 @@ int main() {
                 first = 0;
             }
             printf("}");
+#if 0
             if (num_factors == 1){
                 printf(",PRIME\n");
             } else {
                 printf(",COMPOSITE\n");
             }
+#else
+            if (num == 1) {
+                printf(",SPECIAL\n");
+            } else if ( num_factors == 1 && factors[0] == num ){
+               printf(",PRIME\n");
+           }else {
+               printf(",COMPOSITE\n");
+            }
+#endif            
         }
     }
     return 0;

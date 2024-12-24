@@ -13,8 +13,9 @@
 
 #include <stdbool.h>
 
+// 78498 is the number of primes found within 1 million, excluding 1
 #define MAX_MAINLIST_SIZE 78498
-//#define MAX_SMALL_ARRAY_SIZE 100
+
 #define MAX_FACTORS 100
 // Function to check if a value is already present in the MAINLIST using binary search
 bool is_present(unsigned long long mainlist[], int mainlist_size, unsigned long long value) {
@@ -34,9 +35,9 @@ bool is_present(unsigned long long mainlist[], int mainlist_size, unsigned long 
     return false;
 }
 
-// Function to merge a small array into the MAINLIST while maintaining sorted order and uniqueness
 int merge(unsigned long long mainlist[], int *mainlist_size_ptr, unsigned long long small_array[], int small_array_size) {
     int mainlist_size = *mainlist_size_ptr;
+
     for (int i = 0; i < small_array_size; i++) {
         if (!is_present(mainlist, mainlist_size, small_array[i])) {
             if (mainlist_size >= MAX_MAINLIST_SIZE) {
@@ -44,15 +45,35 @@ int merge(unsigned long long mainlist[], int *mainlist_size_ptr, unsigned long l
                 return -1; // Indicate an error
             }
 
-            int j = mainlist_size;
-            while (j > 0 && mainlist[j - 1] > small_array[i]) {
-                mainlist[j] = mainlist[j - 1];
-                j--;
+            // Binary search to find insertion point
+            int left = 0;
+            int right = mainlist_size - 1;
+            int insertion_point = mainlist_size;
+
+            while (left <= right) {
+                int mid = left + (right - left) / 2;
+                if (mainlist[mid] == small_array[i]) {
+                    insertion_point = mid;
+                    break;
+                } else if (mainlist[mid] < small_array[i]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                    insertion_point = mid;
+                }
             }
-            mainlist[j] = small_array[i];
+
+            // Shift elements to make space for the new element
+            for (int j = mainlist_size; j > insertion_point; j--) {
+                mainlist[j] = mainlist[j - 1];
+            }
+
+            // Insert the new element
+            mainlist[insertion_point] = small_array[i];
             mainlist_size++;
         }
     }
+
     *mainlist_size_ptr = mainlist_size;
     return 0; // Indicate success
 }
@@ -108,16 +129,17 @@ int remove_duplicates(unsigned long long  arr[], int n) {
 find prime factors of n.
 updates the factor array with the list of prime factors.
 updates num_factors with the count added to the array.
-aRETURNS : 0 SUCCESS , -1 TOO MANY FACTORS
+RETURNS : 0 SUCCESS , -1 TOO MANY FACTORS
 */
 int find_factors(unsigned long long  n, int *num_factors,unsigned long long factors[]) {
     int i, count = 0;
-
+#if 0
     if ( n == 1llu) {
         factors[count++] = n;
         *num_factors = remove_duplicates(factors, count) ;
         return 0;
     }
+#endif    
     // Check divisibility by 2
     if (n % 2 == 0) {
         factors[count++] = 2;
@@ -190,7 +212,7 @@ int adjacent_prime_gap(const unsigned long long start,const int count) {
             }
         }
     }
-    print_array(mainlist, mainlist_size, "#Gap Primes");
+    print_array(mainlist, mainlist_size, "#Primes");
     return 0;
 }
 #ifndef FIND_FACTOR_LIB
@@ -226,19 +248,26 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Invalid number: %s\n", optarg);
                     return EXIT_FAILURE;
                 }
+                if (*endptr != '\0') {
+                    fprintf(stderr,"Invalid input: not a number\n");
+                    return EXIT_FAILURE;
+                }
+                fprintf(stderr, "count: %s,%llu\n", optarg,number);
                 break;
 
             case 'c': // Handle -c or --count
-                //count = atoi(optarg); // Convert argument to integer
-
                 unsigned long value = strtoul(optarg, &endptr, 10);
                 if (value >= UINT_MAX || value == 0llu){
                 //if (count <= 0) {
                     fprintf(stderr, "Invalid count: %s\n", optarg);
                     return EXIT_FAILURE;
                 }
+                if (*endptr != '\0') {
+                    fprintf(stderr,"Invalid input: not a number\n");
+                    return EXIT_FAILURE;
+                }
                 count = value;
-                fprintf(stderr, "count: %s,%u\n", optarg,count);
+                fprintf(stderr, "count: %s,%d\n", optarg,count);
                 break;
 
            case 'h': // Handle -h option
@@ -253,7 +282,7 @@ int main(int argc, char *argv[]) {
                 abort(); // Should not reach here
         }
     }
-    if ( count == 0 ||number == 0llu ){
+    if ( count == 0l ||number == 0llu ){
        fprintf(stderr, "Must specify both count and number >0.\nUsage: %s [-n|--number <unsigned long long>] [-c|--count <int>]\n", argv[0]);
        return EXIT_FAILURE;
     }
