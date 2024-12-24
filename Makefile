@@ -17,7 +17,7 @@ window_sieve: $(SIEVE_SOURCES) $(SIEVE_HEADERS)
 	$(CC) $(CFLAGS) -DWINDOW_SIEVE_MAIN -o $@ $^
 
 run: window_sieve
-	time ./window_sieve -f -v -c -w 100000 -u 1000000; tail primes.csv
+	time ./window_sieve -f -v -w 100000 -u 1000000; tail primes.csv
 
 clean:
 	rm -f window_sieve *.o primes.*

@@ -325,6 +325,8 @@ void print_usage(const char *program_name) {
     printf("  -v, --verbose              Enable verbose output\n");
     printf("  -c, --check                Check validity of prime with trial division.\n");
     printf("  -f, --fast                 Dont periodically yield processor to system.\n");
+    printf("  -n, --next                 Include next value.\n");
+    printf("  -p, --pgap                 calculate prime gap between adjacent primes.\n");
     printf("  -h, --help                 Display this help message\n");
 }
 
@@ -338,12 +340,14 @@ int main(int argc, char *argv[]) {
         {"verbose",     no_argument,       &verbose_flag, 1},
         {"check",       no_argument,       &check_flag, 1},
         {"fast",        no_argument,       &fast_flag, 1},
+        {"next",        no_argument,       &next_flag, 1},
+        {"pgap",        no_argument,       &pgap_flag, 1},
         {"help",        no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
     char *endptr;
 
-    while ((c = getopt_long(argc, argv, "w:u:vcfh", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "w:u:vcfnph", long_options, &option_index)) != -1) {
         switch (c) {
             case 'w':
              errno = 0;  // Reset errno before the call
@@ -387,6 +391,12 @@ int main(int argc, char *argv[]) {
             case 'f':
                 fast_flag = 1;
                 break;
+            case 'p':
+                pgap_flag = 1;
+                break;
+            case 'n':
+                next_flag = 1;
+                break;
             case 'h':
                 print_usage(argv[0]);
                 return EXIT_SUCCESS;
@@ -405,7 +415,7 @@ int main(int argc, char *argv[]) {
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
-    size_t count = prime_bin2csv(primesbin,primescsv,verbose_flag,fast_flag,next_flag,check_flag,pgap_flag) ;
+    size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     
     return EXIT_SUCCESS;
