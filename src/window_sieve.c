@@ -19,17 +19,18 @@ and detemine its range.
 
 #define _GNU_SOURCE
 #include <stddef.h>
+#include <stdint.h>
+#include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/sysinfo.h>
-#include <time.h>
 #include <stdarg.h>
+#include <time.h>
 #include <sys/time.h>
-#include <stdint.h>
-#include <errno.h>
+#include <math.h>
 #include <window_sieve.h>
 #include <hardware_info.h>
 #include <trial_division.h>
@@ -51,6 +52,8 @@ static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
 static int fast_flag = 0;
 static int verbose_flag = 0;
 static int check_flag = 0;
+static int pgap_flag = 0;
+static int next_flag = 0;
 
 /*
   Accepts same parameters as printf, but it puts a date time in front of the message.
@@ -155,7 +158,6 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
-#define SKIP
 #ifdef SKIP
 /*
     convert the prime bin file into a csv and return the number of records processed.
@@ -178,6 +180,49 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
         } else {
             fprintf(output, "%llu,%llu\n", p.p, p.nextval);
         }
+        if (!fast_flag && count%10000 == 0){
+            usleep(250000); 
+        }
+    }
+    fclose(input);
+    fflush(output);
+    fclose(output);
+    return count;
+}
+#else
+/*
+    convert the prime bin file into a csv and return the number of records processed.
+*/
+size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
+    FILE * input, * output;
+    size_t count=0;
+    Prime p;
+    input = prime_open(inputname);
+    output = csv_creat(outputname) ;
+    if (verbose_flag) {
+        PRINTF("creating %s from %s\n",outputname,inputname);
+    }
+    // for each record of input
+    while (prime_read(input,&p)==1) {
+        count ++;
+        fprintf(output,"%llu", p.p);
+       if (next_flag){
+            fprintf(output,",%llu", p.nextval);
+        }
+        if (check_flag){
+            char * primecode = check_prime(p.p);
+            fprintf(output,",%s", primecode);
+        } 
+        if (pgap_flag){
+            Prime next;
+            if (prime_read(input,&next)==1){
+                fprintf(output,",%llu", next.p-p.p);
+                prime_unread(input) ;
+            } else {
+                fprintf(output,",");
+            }
+        }
+        fprintf(output,"\n");
         if (!fast_flag && count%10000 == 0){
             usleep(250000); 
         }
@@ -255,7 +300,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     fclose(fp); // close primes.bin
     free(is_prime);
 }
-
+#if 0
 void files_remove(void) {
     int result = remove(primesbin);
     if (result == 0) {
@@ -270,7 +315,7 @@ void files_remove(void) {
         }
     } 
 }
-
+#endif 
 #ifdef WINDOW_SIEVE_MAIN
 void print_usage(const char *program_name) {
     printf("Usage: %s [options]\n", program_name);
@@ -360,7 +405,7 @@ int main(int argc, char *argv[]) {
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
-    uint count = prime_bin2csv(primesbin, primescsv,verbose_flag,fast_flag,check_flag);
+    size_t count = prime_bin2csv(primesbin,primescsv,verbose_flag,fast_flag,next_flag,check_flag,pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     
     return EXIT_SUCCESS;
