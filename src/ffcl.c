@@ -7,7 +7,7 @@
 #include <limits.h>
 //========================================
 //========================================
-//========================================
+//==SORTED=AND=UNIQUE=LIST================
 //========================================
 //========================================
 
@@ -35,47 +35,56 @@ bool is_present(unsigned long long mainlist[], int mainlist_size, unsigned long 
     return false;
 }
 
+// Function to find the insertion point using binary search.
+// Returns the index where the value should be inserted.
+// If the value is already present, it returns the index of the existing value.
+int find_insertion_point(unsigned long long mainlist[], int mainlist_size, unsigned long long value) {
+    int low = 0;
+    int high = mainlist_size - 1;
+    int insertion_point = mainlist_size; // Default: insert at the end
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (mainlist[mid] == value) {
+            return mid; // Value already present
+        } else if (mainlist[mid] < value) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+            insertion_point = mid; // Update insertion point
+        }
+    }
+    return insertion_point;
+}
+
 int merge(unsigned long long mainlist[], int *mainlist_size_ptr, unsigned long long small_array[], int small_array_size) {
     int mainlist_size = *mainlist_size_ptr;
 
     for (int i = 0; i < small_array_size; i++) {
-        if (!is_present(mainlist, mainlist_size, small_array[i])) {
-            if (mainlist_size >= MAX_MAINLIST_SIZE) {
-                fprintf(stderr, "Error: MAINLIST is full.\n");
-                return -1; // Indicate an error
-            }
+        int insertion_point = find_insertion_point(mainlist, mainlist_size, small_array[i]);
 
-            // Binary search to find insertion point
-            int left = 0;
-            int right = mainlist_size - 1;
-            int insertion_point = mainlist_size;
-
-            while (left <= right) {
-                int mid = left + (right - left) / 2;
-                if (mainlist[mid] == small_array[i]) {
-                    insertion_point = mid;
-                    break;
-                } else if (mainlist[mid] < small_array[i]) {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                    insertion_point = mid;
-                }
-            }
-
-            // Shift elements to make space for the new element
-            for (int j = mainlist_size; j > insertion_point; j--) {
-                mainlist[j] = mainlist[j - 1];
-            }
-
-            // Insert the new element
-            mainlist[insertion_point] = small_array[i];
-            mainlist_size++;
+        // Check if the value is already present
+        if (insertion_point < mainlist_size && mainlist[insertion_point] == small_array[i]) {
+            continue; // Skip if already present
         }
+
+        if (mainlist_size >= MAX_MAINLIST_SIZE) {
+            fprintf(stderr, "Error: MAINLIST is full.\n");
+            return -1;
+        }
+
+        // Shift elements to make space
+        for (int j = mainlist_size; j > insertion_point; j--) {
+            mainlist[j] = mainlist[j - 1];
+        }
+
+        // Insert the new element
+        mainlist[insertion_point] = small_array[i];
+        mainlist_size++;
     }
 
     *mainlist_size_ptr = mainlist_size;
-    return 0; // Indicate success
+    return 0;
 }
 
 /*
@@ -102,13 +111,6 @@ void print_array(unsigned long long arr[], int size, const char* name) {
 //========================================
 
 
-void print_help() {
-    printf("Usage: program [OPTIONS]\n");
-    printf("Options:\n");
-    printf("  -n, --number  <number>       Specify a place to begin loking at factors.\n");
-    printf("  -c, --count  <count>        Specify a count numbers to check.\n");
-    printf("  -h, --help                  Display this help message.\n");
-}
 int remove_duplicates(unsigned long long  arr[], int n) {
     if (n == 0 || n == 1)
         return n;
@@ -133,13 +135,7 @@ RETURNS : 0 SUCCESS , -1 TOO MANY FACTORS
 */
 int find_factors(unsigned long long  n, int *num_factors,unsigned long long factors[]) {
     int i, count = 0;
-#if 0
-    if ( n == 1llu) {
-        factors[count++] = n;
-        *num_factors = remove_duplicates(factors, count) ;
-        return 0;
-    }
-#endif    
+
     // Check divisibility by 2
     if (n % 2 == 0) {
         factors[count++] = 2;
@@ -174,11 +170,31 @@ int find_factors(unsigned long long  n, int *num_factors,unsigned long long fact
     return 0;
 }
 
+#define IC_SPECIAL "SPECIAL" // 0 and 1
+#define IC_PRIME "PRIME" // numbers divisible by one and itself
+#define IC_COMPOSITE "COMPOSITE" // the rest.
+char * integer_classification(const unsigned long long num, const int num_factors,const unsigned long long * factors) {
+    char * return_val = NULL;
+    if (num == 1ULL || num == 0ULL ) {
+        return_val = IC_SPECIAL;
+    } else if ( num_factors == 1 && factors[0] == num ){
+               return_val = IC_PRIME;
+    }else {
+        return_val = IC_COMPOSITE;
+    }
+    return return_val;
+}
+//========================================
+//========================================
+//========================================
+//========================================
+//========================================
+
 /*
     function accepts the prime and count to the next prime.
     prints the factors of each number in the range.
 */
-int adjacent_prime_gap(const unsigned long long start,const int count) {
+int consecutive_prime_gap_report(const unsigned long long start,const int count) {
     unsigned long long mainlist[MAX_MAINLIST_SIZE];
     int mainlist_size = 0;
     unsigned long long  factors[MAX_FACTORS];
@@ -198,25 +214,32 @@ int adjacent_prime_gap(const unsigned long long start,const int count) {
                 first = 0;
             }
             printf("}");
-            if (num == 1) {
-                printf(",SPECIAL\n");
-            } else if ( num_factors == 1 && factors[0] == num ){
-               printf(",PRIME\n");
-           }else {
-               printf(",COMPOSITE\n");
-            }
+            char * ic = integer_classification(num, num_factors,factors) ;
+            printf(",%s\n",ic);
 
+            // add factors from each prime and or composite into main list.
             if(merge(mainlist, &mainlist_size, factors, num_factors) != 0){
                 fprintf(stderr, "Error: MAINLIST is full.\n");
                 return EXIT_FAILURE;
             }
         }
     }
-    print_array(mainlist, mainlist_size, "#Primes");
+    // display sorted and unique prime factors.
+    print_array(mainlist, mainlist_size, "#Factors ");
     return 0;
 }
+
 #ifndef FIND_FACTOR_LIB
+void print_help() {
+    printf("Usage: program [OPTIONS]\n");
+    printf("Options:\n");
+    printf("  -n, --number  <number>       Specify a place to begin loking at factors.\n");
+    printf("  -c, --count  <count>        Specify a count numbers to check.\n");
+    printf("  -h, --help                  Display this help message.\n");
+}
+
 int main(int argc, char *argv[]) {
+
     // Check if no arguments were provided (argc should be 1)
     if (argc == 1) {
         print_help();
@@ -282,11 +305,11 @@ int main(int argc, char *argv[]) {
                 abort(); // Should not reach here
         }
     }
-    if ( count == 0l ||number == 0llu ){
-       fprintf(stderr, "Must specify both count and number >0.\nUsage: %s [-n|--number <unsigned long long>] [-c|--count <int>]\n", argv[0]);
+    if ( count == 0l || number == 0ull ){
+       fprintf(stderr, "Must specify both count and number. count and number must be  >0.\nUsage: %s [-n|--number <unsigned long long>] [-c|--count <int>]\n", argv[0]);
        return EXIT_FAILURE;
     }
-    adjacent_prime_gap(number,count);
+    consecutive_prime_gap_report(number,count);
     return EXIT_SUCCESS;
 }
 #endif

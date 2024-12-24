@@ -300,7 +300,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     fclose(fp); // close primes.bin
     free(is_prime);
 }
-#if 0
+#ifdef WINDOW_SIEVE_MAIN
 void files_remove(void) {
     int result = remove(primesbin);
     if (result == 0) {
@@ -315,8 +315,7 @@ void files_remove(void) {
         }
     } 
 }
-#endif 
-#ifdef WINDOW_SIEVE_MAIN
+
 void print_usage(const char *program_name) {
     printf("Usage: %s [options]\n", program_name);
     printf("Options:\n");
@@ -414,11 +413,12 @@ int main(int argc, char *argv[]) {
     if (verbose_flag == true) {
         hardware_info();
     }
-    //files_remove();
+    files_remove();
     PRINTF("Window size: %ld\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
+//size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     

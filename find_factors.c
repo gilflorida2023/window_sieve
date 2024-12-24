@@ -73,13 +73,6 @@ int main() {
                 first = 0;
             }
             printf("}");
-#if 0
-            if (num_factors == 1){
-                printf(",PRIME\n");
-            } else {
-                printf(",COMPOSITE\n");
-            }
-#else
             if (num == 1) {
                 printf(",SPECIAL\n");
             } else if ( num_factors == 1 && factors[0] == num ){
@@ -87,7 +80,6 @@ int main() {
            }else {
                printf(",COMPOSITE\n");
             }
-#endif            
         }
     }
     return 0;
