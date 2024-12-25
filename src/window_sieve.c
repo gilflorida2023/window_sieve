@@ -83,7 +83,6 @@ void timestamp_printf(const char *format, ...) {
     va_end(args);
 }
 
-
 /*
     open the specified bin file for read and write. does not truncate the file. 
 */
@@ -146,6 +145,7 @@ int prime_unread(FILE * fp) {
     }
     return rc;
 }
+
 /*
     create the csv file, trunc if it exists.
 */
@@ -158,38 +158,7 @@ FILE * csv_creat(char * filename) {
     }
     return fp;
 }
-#ifdef SKIP
-/*
-    convert the prime bin file into a csv and return the number of records processed.
-*/
-size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar check_flag) {
-    FILE * input, * output;
-    size_t count=0;
-    Prime p;
-    input = prime_open(inputname);
-    output = csv_creat(outputname) ;
-    if (verbose_flag) {
-        PRINTF("creating %s from %s\n",outputname,inputname);
-    }
-    // for each record of input
-    while (prime_read(input,&p)==1) {
-        count ++;
-        if (check_flag){
-            char * primecode = check_prime(p.p);
-            fprintf(output, "%llu,%llu,%s\n", p.p, p.nextval,primecode);
-        } else {
-            fprintf(output, "%llu,%llu\n", p.p, p.nextval);
-        }
-        if (!fast_flag && count%10000 == 0){
-            usleep(250000); 
-        }
-    }
-    fclose(input);
-    fflush(output);
-    fclose(output);
-    return count;
-}
-#else
+
 /*
     convert the prime bin file into a csv and return the number of records processed.
 */
@@ -206,6 +175,10 @@ void prime_bin2csv_header(FILE * output,uchar verbose_flag,uchar fast_flag,uchar
     }
     fprintf(output,"\n");
 }
+
+/*
+    convert the prime bin file into a csv and return the number of records processed.
+*/
 size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fast_flag,int next_flag,int check_flag,int pgap_flag) {
     FILE * input, * output;
     size_t count=0;
@@ -246,7 +219,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fas
     fclose(output);
     return count;
 }
-#endif
+
 /*
     Sieve identifies prime numbers and write them to a file. 
     Current change: move to binary file and the update the write the csv file at the end.
@@ -288,6 +261,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
                 prime_write(fp, &cp) ;
             }
         }
+
         // discover new primes
         // skip 0 and 1, since by definition, they are not prime.
         for (cp.p = (current_window == 0 ) ? 2 : current_window; cp.p < current_window + buffer_size; cp.p ++) {
@@ -314,6 +288,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     fclose(fp); // close primes.bin
     free(is_prime);
 }
+
 #ifdef WINDOW_SIEVE_MAIN
 void files_remove(void) {
     int result = remove(primesbin);
@@ -432,7 +407,6 @@ int main(int argc, char *argv[]) {
     PRINTF("Upper limit: %llu\n", upper_limit);
 
     sieve(window_size, upper_limit);
-//size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     

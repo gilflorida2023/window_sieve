@@ -275,7 +275,6 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr,"Invalid input: not a number\n");
                     return EXIT_FAILURE;
                 }
-                fprintf(stderr, "count: %s,%llu\n", optarg,number);
                 break;
 
             case 'c': // Handle -c or --count
