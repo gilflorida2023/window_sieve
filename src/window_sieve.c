@@ -193,12 +193,26 @@ size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar
 /*
     convert the prime bin file into a csv and return the number of records processed.
 */
-size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
+void prime_bin2csv_header(FILE * output,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
+    fprintf(output,"%s", "#PRIME");
+    if (next_flag){
+        fprintf(output,",%s", "NEXT_VALUE");
+    }
+    if (check_flag){
+        fprintf(output,",%s", "INT_CATEGORY");
+    } 
+    if (pgap_flag){
+        fprintf(output,",%s", "CONSECUTIVE_PRIME_GAP");
+    }
+    fprintf(output,"\n");
+}
+size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fast_flag,int next_flag,int check_flag,int pgap_flag) {
     FILE * input, * output;
     size_t count=0;
     Prime p;
     input = prime_open(inputname);
     output = csv_creat(outputname) ;
+    prime_bin2csv_header(output, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     if (verbose_flag) {
         PRINTF("creating %s from %s\n",outputname,inputname);
     }

@@ -15,7 +15,7 @@ void timestamp_printf(const char *format, ...) ;
 #define primesbin "primes.bin"
 #define primescsv "primes.csv"
 
-size_t prime_bin2csv(char *inputname ,char * outputname,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) ;
+size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fast_flag,int next_flag,int check_flag,int pgap_flag) ;
 int prime_unread(FILE * fp) ;
 FILE * prime_open(char * filename) ;
 FILE * csv_creat(char * filename) ;
