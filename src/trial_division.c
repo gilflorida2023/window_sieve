@@ -59,19 +59,12 @@ char * check_prime(unsigned long long n) {
         else return_code = (factor==n&& n!=0)?td_prime:td_composite;
     return return_code;
 }
-#ifdef SEQUENTIAL
+#ifdef TRIAL_DIVISION_MAIN
 int main(void) {
     for (ulonglong i = 0llu;i<1000000llu;i++) {
         char * cp = check_prime(i) ;
         printf("%llu,%s\n",i, cp);
     }   
-    return 0;
-}
-#endif
-#ifdef SKIP
-int main(void) {
-    size_t count = prime_bin2csv(primesbin,primescsv,0,0,0); 
-    printf("%lu records written to csv %s from binary file %s\n",count,primescsv,primesbin)  ;
     return 0;
 }
 #endif

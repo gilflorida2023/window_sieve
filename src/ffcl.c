@@ -38,7 +38,8 @@ bool is_present(unsigned long long mainlist[], int mainlist_size, unsigned long 
 // Function to find the insertion point using binary search.
 // Returns the index where the value should be inserted.
 // If the value is already present, it returns the index of the existing value.
-int find_insertion_point(unsigned long long mainlist[], int mainlist_size, unsigned long long value) {
+int find_insertion_point(unsigned long long mainlist[], int mainlist_size,\
+    unsigned long long value) {
     int low = 0;
     int high = mainlist_size - 1;
     int insertion_point = mainlist_size; // Default: insert at the end
@@ -57,7 +58,11 @@ int find_insertion_point(unsigned long long mainlist[], int mainlist_size, unsig
     return insertion_point;
 }
 
-int merge(unsigned long long mainlist[], int *mainlist_size_ptr, unsigned long long small_array[], int small_array_size) {
+/*
+  inserts the small array into the main list while masintaining unique and sorted order.
+*/
+int merge(unsigned long long mainlist[], int *mainlist_size_ptr, \
+    unsigned long long small_array[], int small_array_size) {
     int mainlist_size = *mainlist_size_ptr;
 
     for (int i = 0; i < small_array_size; i++) {
@@ -110,7 +115,10 @@ void print_array(unsigned long long arr[], int size, const char* name) {
 //========================================
 //========================================
 
-
+/*
+    remove duplicates from the list of factors.
+    returns the new count for number of elements in array.
+*/
 int remove_duplicates(unsigned long long  arr[], int n) {
     if (n == 0 || n == 1)
         return n;
@@ -133,7 +141,8 @@ updates the factor array with the list of prime factors.
 updates num_factors with the count added to the array.
 RETURNS : 0 SUCCESS , -1 TOO MANY FACTORS
 */
-int find_factors(unsigned long long  n, int *num_factors,unsigned long long factors[]) {
+int find_factors(unsigned long long  n, int *num_factors,\
+    unsigned long long factors[]) {
     int i, count = 0;
 
     // Check divisibility by 2
@@ -173,7 +182,13 @@ int find_factors(unsigned long long  n, int *num_factors,unsigned long long fact
 #define IC_SPECIAL "SPECIAL" // 0 and 1
 #define IC_PRIME "PRIME" // numbers divisible by one and itself
 #define IC_COMPOSITE "COMPOSITE" // the rest.
-char * integer_classification(const unsigned long long num, const int num_factors,const unsigned long long * factors) {
+/*
+based on the number's prime factors rto determibe if its
+prime,composite, or special. only accepts positive unsigned
+long long integers.
+*/
+char * integer_classification(const unsigned long long num, \
+    const int num_factors,const unsigned long long * factors) {
     char * return_val = NULL;
     if (num == 1ULL || num == 0ULL ) {
         return_val = IC_SPECIAL;
@@ -265,7 +280,7 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt_long(argc, argv, "n:c:h", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'n': // Handle -n or --number
-                number = strtoull(optarg, &endptr, 10); // Convert argument to unsigned long long
+                number = strtoull(optarg, &endptr, 10);
                 fprintf(stderr, "number: %s,%llu\n", optarg,number);
                 if (number == 0 && optarg[0] != '0') {
                     fprintf(stderr, "Invalid number: %s\n", optarg);
