@@ -58,16 +58,35 @@ void print_cpu_info(FILE *cpufile) {
     printf("Number of Cores: %d\n", core_count);
 }
 
+
+char* format_bytes(unsigned long long bytes) {
+    static char buffer[32];
+    const char* units[] = {"B", "KB", "MB", "GB", "TB"};
+    int i = 0;
+    double size = bytes;
+
+    while (size >= 1024 && i < 4) {
+        size /= 1024;
+        i++;
+    }
+
+    snprintf(buffer, sizeof(buffer), "%.2f %s", size, units[i]);
+    return buffer;
+}
+
+
+
 int get_ram_info() {
     struct sysinfo info;
 
     if (sysinfo(&info) == 0) {
-        unsigned long totalram = info.totalram / (1024 * 1024);
-        unsigned long freeram = info.freeram / (1024 * 1024);
+        unsigned long long totalram = info.totalram;
+        unsigned long long freeram = info.freeram;
+        unsigned long long usedram = totalram - freeram;
 
-        printf("Total RAM: %lu GB\n", totalram);
-        printf("Free RAM: %lu GB\n", freeram);
-        printf("Used RAM: %lu GB\n", (totalram - freeram));
+        printf("Total RAM: %s\n", format_bytes(totalram));
+        printf("Free RAM: %s\n", format_bytes(freeram));
+        printf("Used RAM: %s\n", format_bytes(usedram));
     } else {
         perror("sysinfo");
         return 1;
