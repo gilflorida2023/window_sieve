@@ -38,7 +38,6 @@ and detemine its range.
 #define PRINTF timestamp_printf
 #define map2buffer(val) ((unsigned int)((val) - current_window))
 
-
 #define true 1
 #define false 0
 
@@ -227,6 +226,8 @@ size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fas
 void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     Prime cp; //current prime 
     ulonglong current_window = 0ULL;
+    unsigned long long result=0ULL;
+    char * message = "Shut 'er down, Clancy, she's pumping mud!";
     uchar * is_prime = (uchar *)malloc(buffer_size * sizeof(uchar));
     if (verbose_flag) {
         PRINTF("MALLOCED SIZE: %ld\n",buffer_size*sizeof(uchar));
@@ -249,8 +250,19 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
             uchar entered_loop = false;
             for (;cp.nextval<current_window+buffer_size;cp.nextval +=cp.p){
                 entered_loop = true;
-                uint val = map2buffer(cp.nextval);
-                //OverflowCheck(val)
+                uint val ;
+#ifdef __GNUC__
+                if (__builtin_usubll_overflow(cp.nextval, current_window, &result)) {
+                    PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
+                    free(is_prime);
+                    fclose(fp);
+                    // work we have done will be dumped to csv.
+                    return;
+                }
+                val = (int)result;
+#else      
+                val= map2buffer(cp.nextval);
+#endif
                 if (!fast_flag && cp.nextval%1000000 == 0){
                     usleep(150000); 
                 }
@@ -265,14 +277,38 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
         // discover new primes
         // skip 0 and 1, since by definition, they are not prime.
         for (cp.p = (current_window == 0 ) ? 2 : current_window; cp.p < current_window + buffer_size; cp.p ++) {
-            uint val = map2buffer(cp.p);
+            //uint val = map2buffer(cp.p);
+            uint val ;
+#ifdef __GNUC__
+            if (__builtin_usubll_overflow(cp.p, current_window, &result)) {
+                PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
+                free(is_prime);
+                fclose(fp);
+                // work we have done will be dumped to csv.
+                return;
+            }
+            val = (int)result;
+#else      
+            val= map2buffer(cp.p);
+#endif
             //OverflowCheck(val)
             if (is_prime[val]) {
                 cp.nextval = cp.p + cp.p;
                 // Mark multiples of p as not prime
                 while (cp.nextval < current_window + buffer_size) {
-                    uint val = map2buffer(cp.nextval);
-                    //OverflowCheck(val)
+                    uint val ;
+#ifdef __GNUC__
+                    if (__builtin_usubll_overflow(cp.nextval, current_window, &result)) {
+                        PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
+                        free(is_prime);
+                        fclose(fp);
+                        // work we have done will be dumped to csv.
+                        return;
+                }
+                val = (int)result;
+#else      
+                val= map2buffer(cp.nextval);
+#endif
                     if (!fast_flag && cp.nextval%100000 == 0){
                         usleep(150000); 
                     }
