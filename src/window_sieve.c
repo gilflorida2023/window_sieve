@@ -89,7 +89,7 @@ void timestamp_printf(const char *format, ...) {
 
    if (TS_LOG != NULL) {
        vfprintf(TS_LOG, format, args_copy);
-       fflush();
+       fflush(TS_LOG);
    }
 
    va_end(args_copy);
