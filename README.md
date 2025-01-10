@@ -4,6 +4,26 @@
 
 ## Overview
 Window Sieve is a memory-efficient implementation of the Sieve of Eratosthenes algorithm for finding prime numbers. Unlike traditional implementations that require memory proportional to the upper limit, this program uses a sliding window approach to find primes up to large numbers while maintaining a constant memory footprint.
+The Sieve of Eratosthenes is an efficient algorithm for finding all prime numbers up to a specified limit. It works by iteratively marking the multiples of each prime number as composite. Instead of performing explicit multiplications, the algorithm generates these multiples by constructing arithmetic progressions.
+Here's how it works:
+Create a list: Create a list of consecutive integers from 2 to the specified limit n. Initially, assume all numbers in the list are prime.
+Start with the first prime: The first prime number is 2.
+Generate an arithmetic progression: Starting with the current prime p, generate an arithmetic progression with a common difference of p. This progression represents all the multiples of p: p, 2p, 3p, 4p, and so on.
+Mark composites: Mark all the numbers in this arithmetic progression as composite (not prime) in the list. Note that you start marking at p<sup>2</sup>, as multiples of p less than p<sup>2</sup> will have already been marked by smaller primes.
+Find the next prime: Find the next unmarked number in the list greater than p. This number is the next prime.
+Repeat: Repeat steps 3-5 until the current prime p is greater than the square root of n.
+Remaining unmarked numbers: All the remaining unmarked numbers in the list are prime.
+Example (finding primes up to 30):
+List: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30
+First prime: 2
+Arithmetic progression (multiples of 2): 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30. Mark these as composite.
+Next prime: 3
+Arithmetic progression (multiples of 3): 3, 6, 9, 12, 15, 18, 21, 24, 27, 30. Mark these as composite (some are already marked).
+Next prime: 5
+Arithmetic progression (multiples of 5): 5, 10, 15, 20, 25, 30. Mark these as composite.
+Next prime: 7. Since 7 * 7 is greater than 30, we stop.
+The remaining unmarked numbers (2, 3, 5, 7, 11, 13, 17, 19, 23, 29) are the primes up to 30.
+This description emphasizes the use of arithmetic progressions to generate multiples, which is the core of the Sieve's efficiency .
 
 ## How It Works
 

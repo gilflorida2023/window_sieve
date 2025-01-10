@@ -1,7 +1,7 @@
 CC = gcc
 RELEASE = -O3 -s -Wall -I include
 DEBUG = -g3 -O0 -Wall -Werror -I include
-CFLAGS = $(RELEASE)
+CFLAGS = $(DEBUG)
 
 SRCDIR = src
 INCDIR = include

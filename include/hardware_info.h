@@ -6,4 +6,5 @@
   0 - SUCCESS, !0 - ERROR.
 */
 int hardware_info(void);
+char* format_bytes(unsigned long long bytes) ;
 #endif

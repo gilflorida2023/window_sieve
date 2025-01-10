@@ -54,6 +54,7 @@ static int check_flag = 0;
 static int pgap_flag = 0;
 static int next_flag = 0;
 
+FILE * TS_LOG = NULL;
 /*
   Accepts same parameters as printf, but it puts a date time in front of the message.
   its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
@@ -74,12 +75,35 @@ void timestamp_printf(const char *format, ...) {
     // Append subseconds and timezone offset
     snprintf(timestamp + strlen(timestamp), sizeof(timestamp) - strlen(timestamp), ".%06ld%+03ld:00", tv.tv_usec, tm->tm_gmtoff / 3600);
 
-    printf("%s: ", timestamp);
-
+    //printf("%s: ", timestamp);
+    fprintf(stdout,"%s: ", timestamp);
+    if (TS_LOG !=NULL) {
+        fprintf(TS_LOG,"%s: ", timestamp);
+    }
+/*
     va_list args;
     va_start(args, format);
-    vprintf(format, args);
+    //vprintf(format, args);
+    vfprintf(stdout,format,args);
+    if (TS_LOG !=NULL) {
+        vfprintf(TS_LOG,format,args);
+    }
+
     va_end(args);
+    */
+   va_list args;
+va_list args_copy;
+va_start(args, format);
+va_copy(args_copy, args);
+
+vfprintf(stdout, format, args);
+
+if (TS_LOG != NULL) {
+    vfprintf(TS_LOG, format, args_copy);
+}
+
+va_end(args_copy);
+va_end(args);
 }
 
 /*
@@ -220,7 +244,7 @@ size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fas
 }
 
 /*
-    Sieve identifies prime numbers and write them to a file. 
+    Sieve identifies prime numbers and writes the prime along with its next value  to a binary file. 
     Current change: move to binary file and the update the write the csv file at the end.
 */
 void sieve(const size_t buffer_size, const ulonglong upper_limit) {
@@ -256,6 +280,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
                     PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
                     free(is_prime);
                     fclose(fp);
+                    next_flag = 1; // write next val to the csv
                     // work we have done will be dumped to csv.
                     return;
                 }
@@ -284,6 +309,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
                 PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
                 free(is_prime);
                 fclose(fp);
+                next_flag = 1; // write next val to the csv
                 // work we have done will be dumped to csv.
                 return;
             }
@@ -302,6 +328,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
                         PRINTF("%s\nSubtraction overflow detected! -- perform recovery\n",message);
                         free(is_prime);
                         fclose(fp);
+                        next_flag = 1; // write next val to the csv
                         // work we have done will be dumped to csv.
                         return;
                 }
@@ -357,6 +384,15 @@ void print_usage(const char *program_name) {
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
+    TS_LOG = fopen("window_sieve.log", "a");
+    if (TS_LOG == NULL) {
+        perror("Error opening log file");
+        exit(EXIT_FAILURE);
+    }else {
+        PRINTF("================================\n");
+        PRINTF("Created log file\n");
+    }
+
     
     static struct option long_options[] = {
         {"window_size", required_argument, 0, 'w'},
@@ -439,13 +475,14 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %ld\n", window_size);
+    PRINTF("Window size: %ld, %s\n", window_size, format_bytes((unsigned long long)window_size));
+    //PRINTF("Window size: %ld\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
-
     sieve(window_size, upper_limit);
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
-    
+    fflush(TS_LOG);
+    fclose(TS_LOG);
     return EXIT_SUCCESS;
 }
 #endif

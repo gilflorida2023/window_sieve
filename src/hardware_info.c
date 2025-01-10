@@ -17,7 +17,6 @@ loadaverage read_load_average(const char *filename);
 
 int hardware_info() {
     FILE * cpufile;
-    printf("=================================\n");
     
     // Open /proc/cpuinfo
     if ((cpufile = fopen("/proc/cpuinfo", "r")) == NULL) {
@@ -39,7 +38,6 @@ int hardware_info() {
 
     printf("Load Average: 1-minute: %.2f, 5-minute: %.2f, 15-minute: %.2f\n", la.one, la.five, la.fifteen);
 
-    printf("=================================\n");
     return 0;
 }
 
@@ -60,7 +58,7 @@ void print_cpu_info(FILE *cpufile) {
 
 
 char* format_bytes(unsigned long long bytes) {
-    static char buffer[32];
+    static char buffer[100];
     const char* units[] = {"B", "KB", "MB", "GB", "TB"};
     int i = 0;
     double size = bytes;
