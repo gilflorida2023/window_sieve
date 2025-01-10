@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %ld, %s\n", window_size, format_bytes((unsigned long long)window_size));
+    PRINTF("Window size: %u, %s\n", window_size, format_bytes((unsigned long long)window_size));
     //PRINTF("Window size: %ld\n", window_size);
     PRINTF("Upper limit: %llu\n", upper_limit);
     sieve(window_size, upper_limit);
