@@ -438,7 +438,7 @@ int main(int argc, char *argv[]) {
             case 'u':
                 upper_limit = strtoull(optarg, &endptr, 10);
                 if (upper_limit < window_size) {
-                    fprintf(stderr, "Error: Upper limit %llu should be greater than or equal to window_size %ld.\n",upper_limit,window_size);
+                    fprintf(stderr, "Error: Upper limit %llu should be greater than or equal to window_size %u.\n",upper_limit,window_size);
                     return EXIT_FAILURE;
                 }
                 if (*endptr != '\0') {
