@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,11 +46,12 @@ void print_cpu_info(FILE *cpufile) {
 
     while (fgets(line, LINE_BUFFER_SIZE, cpufile)) {
         if (strstr(line, "model name") != NULL ) {
-            if (core_count ==0 ) {printf("Model Name: %s", strchr(line, ':') + 2);}
-            core_count++;
+            if (core_count ==0 ) {
+                printf("CPU Model: %s", strchr(line, ':') + 2);}
+                core_count++;
         } 
         if (strstr(line, "Model") != NULL ) {
-            printf("%s", line);
+            printf("%s", strchr(line,':'));
         } 
     }
 
