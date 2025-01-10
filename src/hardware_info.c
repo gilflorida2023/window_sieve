@@ -51,7 +51,7 @@ void print_cpu_info(FILE *cpufile) {
                 core_count++;
         } 
         if (strstr(line, "Model") != NULL ) {
-            printf("%s", strchr(line,':'));
+            printf("Computer Model: %s", strchr(line,':'));
         } 
     }
 
