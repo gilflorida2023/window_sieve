@@ -50,6 +50,9 @@ void print_cpu_info(FILE *cpufile) {
             if (core_count ==0 ) {printf("Model Name: %s", strchr(line, ':') + 2);}
             core_count++;
         } 
+        if (strstr(line, "Model") != NULL ) {
+            printf("%s", line);
+        } 
     }
 
     // If "cpu cores" is not found, assume single core for each model name line
