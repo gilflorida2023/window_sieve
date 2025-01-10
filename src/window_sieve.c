@@ -80,30 +80,20 @@ void timestamp_printf(const char *format, ...) {
     if (TS_LOG !=NULL) {
         fprintf(TS_LOG,"%s: ", timestamp);
     }
-/*
-    va_list args;
-    va_start(args, format);
-    //vprintf(format, args);
-    vfprintf(stdout,format,args);
-    if (TS_LOG !=NULL) {
-        vfprintf(TS_LOG,format,args);
-    }
-
-    va_end(args);
-    */
    va_list args;
-va_list args_copy;
-va_start(args, format);
-va_copy(args_copy, args);
+   va_list args_copy;
+   va_start(args, format);
+   va_copy(args_copy, args);
 
-vfprintf(stdout, format, args);
+   vfprintf(stdout, format, args);
 
-if (TS_LOG != NULL) {
-    vfprintf(TS_LOG, format, args_copy);
-}
+   if (TS_LOG != NULL) {
+       vfprintf(TS_LOG, format, args_copy);
+       fflush();
+   }
 
-va_end(args_copy);
-va_end(args);
+   va_end(args_copy);
+   va_end(args);
 }
 
 /*
