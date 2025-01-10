@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/sysinfo.h>
-
+#include <window_sieve.h>
 #define LINE_BUFFER_SIZE 666
 typedef struct loadaverage{
   double one;
@@ -23,7 +23,7 @@ int hardware_info() {
         return 1;
     }
 
-    printf("HARDWARE INFO\n");
+    PRINTF("HARDWARE INFO\n");
     print_cpu_info(cpufile);
     fclose(cpufile);
 
@@ -35,7 +35,7 @@ int hardware_info() {
     // Load Average
      loadaverage la = read_load_average("/proc/loadavg");
 
-    printf("Load Average: 1-minute: %.2f, 5-minute: %.2f, 15-minute: %.2f\n", la.one, la.five, la.fifteen);
+    PRINTF("Load Average: 1-minute: %.2f, 5-minute: %.2f, 15-minute: %.2f\n", la.one, la.five, la.fifteen);
 
     return 0;
 }
@@ -47,16 +47,16 @@ void print_cpu_info(FILE *cpufile) {
     while (fgets(line, LINE_BUFFER_SIZE, cpufile)) {
         if (strstr(line, "model name") != NULL ) {
             if (core_count ==0 ) {
-                printf("CPU Model: %s", strchr(line, ':') + 2);}
+                PRINTF("CPU Model: %s", strchr(line, ':') + 2);}
                 core_count++;
         } 
         if (strstr(line, "Model") != NULL ) {
-            printf("Computer Model: %s", strchr(line,':'));
+            PRINTF("Computer Model: %s", strchr(line,':'));
         } 
     }
 
     // If "cpu cores" is not found, assume single core for each model name line
-    printf("Number of Cores: %d\n", core_count);
+    PRINTF("Number of Cores: %d\n", core_count);
 }
 
 
@@ -85,9 +85,9 @@ int get_ram_info() {
         unsigned long long freeram = info.freeram;
         unsigned long long usedram = totalram - freeram;
 
-        printf("Total RAM: %s\n", format_bytes(totalram));
-        printf("Free RAM: %s\n", format_bytes(freeram));
-        printf("Used RAM: %s\n", format_bytes(usedram));
+        PRINTF("Total RAM: %s\n", format_bytes(totalram));
+        PRINTF("Free RAM: %s\n", format_bytes(freeram));
+        PRINTF("Used RAM: %s\n", format_bytes(usedram));
     } else {
         perror("sysinfo");
         return 1;
