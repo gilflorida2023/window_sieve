@@ -62,12 +62,21 @@ void print_cpu_info(FILE *cpufile) {
 
 char* format_bytes(unsigned long long bytes) {
     static char buffer[100];
-    const char* units[] = {"B", "KB", "MB", "GB", "TB"};
+    const char* units[] = {"B", //bytes
+                           "KB", //kilo byte
+                           "MB", //mega byte
+                           "GB", // giga byte
+                           "TB", //tera byte
+                           "PB", // peta byte
+                           "EB", // hexa byte
+                           "ZB", // zetta byte
+                           "YB", // yotta byte
+                           "BB"}; // bronto byte
     int i = 0;
     double size = bytes;
 
-    while (size >= 1024 && i < 4) {
-        size /= 1024;
+    while (size >= 1000 && i < 9) {
+        size /= 1000;
         i++;
     }
 
