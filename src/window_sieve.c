@@ -34,6 +34,8 @@ and detemine its range.
 #include <window_sieve.h>
 #include <hardware_info.h>
 #include <trial_division.h>
+#define MAIN_MODULE
+#include <prime_formatting.h>
 
 #define PRINTF timestamp_printf
 #define map2buffer(val) ((unsigned int)((val) - current_window))
@@ -59,6 +61,7 @@ FILE * TS_LOG = NULL;
   Accepts same parameters as printf, but it puts a date time in front of the message.
   its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
   #define PRINTF timestamp_printf
+  prime_formatting
 */
 void timestamp_printf(const char *format, ...) {
     struct timeval tv;
@@ -254,7 +257,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
-            PRINTF("current_window: %llu\n",current_window);
+            PRINTF("current_window: %llu        %s\n",current_window,NUMERIC_LITERAL(current_window));
         }
         memset(is_prime, true, buffer_size * sizeof(uchar));
         // read each prime from primes.bin
@@ -470,11 +473,11 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %u, %s\n", window_size, format_bytes((unsigned long long)window_size));
-    //PRINTF("Window size: %ld\n", window_size);
-    PRINTF("Upper limit: %llu\n", upper_limit);
+    PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
+    PRINTF("Upper limit: %llu, %s, %s\n", upper_limit,format_bytes(upper_limit), NUMERIC_LITERAL(upper_limit));
     sieve(window_size, upper_limit);
-    size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
+    size_t count = prime_bin2csv(primesbin, primescsv,\
+        verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     fflush(TS_LOG);
     fclose(TS_LOG);

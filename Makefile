@@ -6,8 +6,8 @@ CFLAGS = $(DEBUG)
 SRCDIR = src
 INCDIR = include
 
-SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c
-SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h
+SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c $(SRCDIR)/prime_formatting.c
+SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h $(INCDIR)/prime_formatting.h
 
 FFCL_SOURCES = $(SRCDIR)/ffcl.c
 FFCL_HEADERS = 
