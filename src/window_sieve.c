@@ -18,30 +18,30 @@ and detemine its range.
 */
 
 #define _GNU_SOURCE
+#define MAIN_MODULE
+/*
 #include <stddef.h>
-#include <stdint.h>
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <getopt.h>
 #include <sys/sysinfo.h>
 #include <stdarg.h>
 #include <time.h>
 #include <sys/time.h>
 #include <math.h>
-#include <window_sieve.h>
-#include <hardware_info.h>
-#include <trial_division.h>
-#define MAIN_MODULE
-#include <prime_formatting.h>
+*/
 
-#define PRINTF timestamp_printf
+#include <stdint.h>
+#include <getopt.h>
+#include <errno.h>
+#include <unistd.h>
+#include <trial_division.h>
+#include <hardware_info.h>
+#include <prime_file.h>
+#include <prime_formatting.h>
+#include <stdlib.h>
+#include <window_sieve.h>
 #define map2buffer(val) ((unsigned int)((val) - current_window))
 
-#define true 1
-#define false 0
 
 // Default values for command line options
 #define DEFAULT_WINDOW_SIZE 100000
@@ -55,125 +55,6 @@ static int verbose_flag = 0;
 static int check_flag = 0;
 static int pgap_flag = 0;
 static int next_flag = 0;
-
-FILE * TS_LOG = NULL;
-/*
-  Accepts same parameters as printf, but it puts a date time in front of the message.
-  its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
-  #define PRINTF timestamp_printf
-  prime_formatting
-*/
-void timestamp_printf(const char *format, ...) {
-    struct timeval tv;
-    gettimeofday(&tv, NULL); // Get the current time with microsecond precision
-    time_t now = tv.tv_sec;  // Get seconds
-    struct tm *tm = localtime(&now); // Convert to local time
-
-    // Buffer to hold the formatted timestamp
-    char timestamp[50];
-    
-    // Format the timestamp with subseconds
-    strftime(timestamp, sizeof(timestamp), "%FT%T", tm);
-    
-    // Append subseconds and timezone offset
-    snprintf(timestamp + strlen(timestamp), sizeof(timestamp) - strlen(timestamp), ".%06ld%+03ld:00", tv.tv_usec, tm->tm_gmtoff / 3600);
-
-    //printf("%s: ", timestamp);
-    fprintf(stdout,"%s: ", timestamp);
-    if (TS_LOG !=NULL) {
-        fprintf(TS_LOG,"%s: ", timestamp);
-    }
-   va_list args;
-   va_list args_copy;
-   va_start(args, format);
-   va_copy(args_copy, args);
-
-   vfprintf(stdout, format, args);
-
-   if (TS_LOG != NULL) {
-       vfprintf(TS_LOG, format, args_copy);
-       fflush(TS_LOG);
-   }
-
-   va_end(args_copy);
-   va_end(args);
-}
-
-/*
-    open the specified bin file for read and write. does not truncate the file. 
-*/
-FILE * prime_open(char * filename) {
-    FILE * fp = fopen(filename, "rb+"); //open existing
-    if (fp == NULL) {
-        fp = fopen(filename, "wb+"); //create if necessary
-        if (fp == NULL) {
-            perror("Error opening binary file");
-            exit(EXIT_FAILURE);
-        }
-    }
-    return fp;
-}
-
-/*
-   Read Prime struct from input fp.
-   parameters:
-   FILE *fp - file pointer
-   Prime * p - prime struct
-   returns bytes read 
-*/
-size_t prime_read(FILE * fp, Prime *p) {
-    return fread(p, sizeof(Prime), 1, fp);
-}
-
-/*
-   writes the prime struct to the binaryfile referenced by fp.
-   parameters:
-   FILE *fp - file pointer
-   Prime * p - prime struct
-   returns bytes read 
-*/
-size_t prime_write(FILE *fp, Prime * p) {
-    // Write the modified integer back to the file
-    size_t s = fwrite(p, sizeof(Prime), 1, fp);
-    if ( s == 0 ) {
-        perror("Error writing binary file");
-        exit(EXIT_FAILURE);
-    }
-    return s;
-}
-
-/*
-  As each prime is read from the input binary file, on the second
-  pass its next value must be updated for the next buffer. 
-  Must read Prime
-  Prime p;
-  while ((prime_read(fp, &p) ==1) {
-    for (;map2buffer[p->nextval]<current_window;p->nextval +=p->p){is_prime[map2buffer]=false}
-    prime_unread(fp);
-    prime_write(fp, &p) ;
-  }  
-*/
-int prime_unread(FILE * fp) {
-    int rc = fseek(fp,-sizeof(Prime),SEEK_CUR);
-    if ( rc == -1 ) {
-        perror("fseek encountered error");
-        exit(EXIT_FAILURE);
-    }
-    return rc;
-}
-
-/*
-    create the csv file, trunc if it exists.
-*/
-FILE * csv_creat(char * filename) {
-    FILE *fp = fopen(filename,"w");
-    // Check if the file was opened successfully
-    if (fp == NULL) {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
-    }
-    return fp;
-}
 
 /*
     convert the prime bin file into a csv and return the number of records processed.
@@ -476,8 +357,7 @@ int main(int argc, char *argv[]) {
     PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
     PRINTF("Upper limit: %llu, %s, %s\n", upper_limit,format_bytes(upper_limit), NUMERIC_LITERAL(upper_limit));
     sieve(window_size, upper_limit);
-    size_t count = prime_bin2csv(primesbin, primescsv,\
-        verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
+    size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
     fflush(TS_LOG);
     fclose(TS_LOG);

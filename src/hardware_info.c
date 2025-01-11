@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/sysinfo.h>
 #include <window_sieve.h>
+#include <prime_formatting.h>
 #define LINE_BUFFER_SIZE 666
 typedef struct loadaverage{
   double one;

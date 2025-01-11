@@ -10,8 +10,6 @@ typedef struct Prime {
     ulonglong p;
     ulonglong nextval;
 } Prime;
-#define PRINTF timestamp_printf
-void timestamp_printf(const char *format, ...) ;
 #define primesbin "primes.bin"
 #define primescsv "primes.csv"
 
@@ -20,4 +18,6 @@ int prime_unread(FILE * fp) ;
 FILE * prime_open(char * filename) ;
 FILE * csv_creat(char * filename) ;
 size_t prime_read(FILE * fp, Prime *p) ;
+#define true 1
+#define false 0
 #endif

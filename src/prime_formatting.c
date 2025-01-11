@@ -1,5 +1,10 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+#include <sys/sysinfo.h>
+#include <stdarg.h>
+#include <time.h>
+#include <sys/time.h>
 #include <prime_formatting.h>
 /*
   function: char* numeric_literal(unsigned long long n, char* buffer, size_t buffer_size) {
@@ -56,6 +61,50 @@ char* numeric_literal(unsigned long long n, char* buffer, size_t buffer_size) {
     return &buffer[j + 1];
 }
 
+
+
+//FILE * TS_LOG = NULL;
+/*
+  Accepts same parameters as printf, but it puts a date time in front of the message.
+  its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
+  #define PRINTF timestamp_printf
+  prime_formatting
+*/
+void timestamp_printf(const char *format, ...) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL); // Get the current time with microsecond precision
+    time_t now = tv.tv_sec;  // Get seconds
+    struct tm *tm = localtime(&now); // Convert to local time
+
+    // Buffer to hold the formatted timestamp
+    char timestamp[50];
+    
+    // Format the timestamp with subseconds
+    strftime(timestamp, sizeof(timestamp), "%FT%T", tm);
+    
+    // Append subseconds and timezone offset
+    snprintf(timestamp + strlen(timestamp), sizeof(timestamp) - strlen(timestamp), ".%06ld%+03ld:00", tv.tv_usec, tm->tm_gmtoff / 3600);
+
+    //printf("%s: ", timestamp);
+    fprintf(stdout,"%s: ", timestamp);
+    if (TS_LOG !=NULL) {
+        fprintf(TS_LOG,"%s: ", timestamp);
+    }
+   va_list args;
+   va_list args_copy;
+   va_start(args, format);
+   va_copy(args_copy, args);
+
+   vfprintf(stdout, format, args);
+
+   if (TS_LOG != NULL) {
+       vfprintf(TS_LOG, format, args_copy);
+       fflush(TS_LOG);
+   }
+
+   va_end(args_copy);
+   va_end(args);
+}
 
 #ifdef PRIME_FORMATTING_MAIN
 int main() {
