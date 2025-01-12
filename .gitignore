@@ -16,6 +16,6 @@ Makefile.in
 configure
 install-sh
 missing
-
-
-
+nohup.out
+*.log
+p*md
