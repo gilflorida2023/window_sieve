@@ -23,6 +23,7 @@ and detemine its range.
 #include <getopt.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/resource.h>
 #include <trial_division.h>
 #include <hardware_info.h>
 #include <prime_file.h>
@@ -241,6 +242,14 @@ int main(int argc, char *argv[]) {
         PRINTF("================================\n");
         PRINTF("Created log file\n");
     }
+
+        // Set the priority to 10
+    if (setpriority(PRIO_PROCESS, 0, -1) == -1) {
+        perror("setpriority");
+        exit(EXIT_FAILURE);
+    }
+
+    PRINTF("Set nice priority to -1\n");
 
     
     static struct option long_options[] = {
