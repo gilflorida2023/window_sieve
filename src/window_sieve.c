@@ -128,7 +128,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     char * message = "Shut 'er down, Clancy, she's pumping mud!";
     uchar * is_prime = (uchar *)malloc(buffer_size * sizeof(uchar));
     if (verbose_flag) {
-        PRINTF("MALLOCED SIZE: %ld\n",buffer_size*sizeof(uchar));
+        PRINTF("MALLOCED SIZE: %ld %s \n",buffer_size*sizeof(uchar), format_bytes((unsigned long long)buffer_size*sizeof(uchar)));
     }
     if (is_prime == NULL) {
     // Handle allocation failure
@@ -138,7 +138,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
-            PRINTF("current_window: %llu        %s\n",current_window,NUMERIC_LITERAL(current_window));
+            PRINTF("current_window: %llu, %s, %s\n",current_window,format_bytes(current_window),NUMERIC_LITERAL(current_window));
         }
         memset(is_prime, true, buffer_size * sizeof(uchar));
         // read each prime from primes.bin
