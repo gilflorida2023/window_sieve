@@ -1,0 +1,9 @@
+"syntax-checker.checkers": [
+  {
+    "name": "GCC",
+    "cmd": "/usr/bin/gcc",
+    "arguments": ["-fsyntax-only", "-x", "c", "-"],
+    "languageIds": ["c"]
+  }
+]
+
