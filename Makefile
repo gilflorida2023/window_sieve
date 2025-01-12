@@ -1,6 +1,6 @@
 CC = gcc
-RELEASE = -O3 -s -Wall -I include
-DEBUG = -g3 -O0 -Wall -Werror -I include
+RELEASE = -O3 -s -Wall -Werror -I include
+DEBUG   = -g3 -O0 -Wall -Werror -I include
 CFLAGS = $(DEBUG)
 
 SRCDIR = src
@@ -13,9 +13,11 @@ FFCL_SOURCES = $(SRCDIR)/ffcl.c
 FFCL_HEADERS = 
 
 # Default install directory
-#INSTALL_DIR = /usr/local/bin
+ifeq ($(shell id -u),0)
+INSTALL_DIR = /usr/local/bin
+else
 INSTALL_DIR = ~/projects/bin
-
+endif
 TARGETS = window_sieve ffcl
 
 # Targets for each binary

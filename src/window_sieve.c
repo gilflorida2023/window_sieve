@@ -19,17 +19,6 @@ and detemine its range.
 
 #define _GNU_SOURCE
 #define MAIN_MODULE
-/*
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/sysinfo.h>
-#include <stdarg.h>
-#include <time.h>
-#include <sys/time.h>
-#include <math.h>
-*/
-
 #include <stdint.h>
 #include <getopt.h>
 #include <errno.h>
@@ -40,21 +29,6 @@ and detemine its range.
 #include <prime_formatting.h>
 #include <stdlib.h>
 #include <window_sieve.h>
-#define map2buffer(val) ((unsigned int)((val) - current_window))
-
-
-// Default values for command line options
-#define DEFAULT_WINDOW_SIZE 100000
-#define DEFAULT_UPPER_LIMIT 1000000
-
-// Global variables for command line options
-static size_t window_size = DEFAULT_WINDOW_SIZE;
-static ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
-static int fast_flag = 0;
-static int verbose_flag = 0;
-static int check_flag = 0;
-static int pgap_flag = 0;
-static int next_flag = 0;
 
 /*
     convert the prime bin file into a csv and return the number of records processed.
@@ -258,6 +232,7 @@ void print_usage(const char *program_name) {
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
+
     TS_LOG = fopen("window_sieve.log", "a");
     if (TS_LOG == NULL) {
         perror("Error opening log file");

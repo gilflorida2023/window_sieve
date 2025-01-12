@@ -20,4 +20,29 @@ FILE * csv_creat(char * filename) ;
 size_t prime_read(FILE * fp, Prime *p) ;
 #define true 1
 #define false 0
+#define map2buffer(val) ((unsigned int)((val) - current_window))
+
+
+// Default values for command line options
+#define DEFAULT_WINDOW_SIZE 100000
+#define DEFAULT_UPPER_LIMIT 1000000
+
+#ifdef MAIN_MODULE
+// Global variables for command line options
+ size_t window_size = DEFAULT_WINDOW_SIZE;
+ ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
+ int fast_flag =0;
+ int verbose_flag =0;
+ int check_flag =0;
+ int pgap_flag =0;
+ int next_flag =0;
+#else
+extern size_t window_size;
+extern ulonglong upper_limit;
+extern int fast_flag ;
+extern int verbose_flag ;
+extern int check_flag ;
+extern int pgap_flag ;
+extern int next_flag ;
+#endif
 #endif
