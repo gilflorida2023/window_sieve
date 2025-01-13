@@ -31,9 +31,40 @@ and detemine its range.
 #include <stdlib.h>
 #include <window_sieve.h>
 
-/*
-    convert the prime bin file into a csv and return the number of records processed.
-*/
+/**
+ * @brief Writes the header row for a CSV file containing prime number information.
+ *
+ * This function generates and writes a header row to the specified output file.
+ * The header includes columns based on the flags provided, allowing for a 
+ * customizable CSV structure.
+ *
+ * @param output FILE pointer to the output CSV file.
+ * @param verbose_flag Unused in this function, but kept for consistency with other functions.
+ * @param fast_flag Unused in this function, but kept for consistency with other functions.
+ * @param next_flag If non-zero, includes "NEXT_VALUE" column in the header.
+ * @param check_flag If non-zero, includes "INT_CATEGORY" column in the header.
+ * @param pgap_flag If non-zero, includes "CONSECUTIVE_PRIME_GAP" column in the header.
+ *
+ * @note The function always includes a "PRIME" column, regardless of flag settings.
+ * @note verbose_flag and fast_flag are unused but included for potential future use
+ *       or consistency with other function signatures.
+ *
+ * @warning This function assumes that the output FILE pointer is valid and writable.
+ *          No checks are performed on the validity of the output stream.
+ *
+ * Header structure:
+ * - Always includes: #PRIME
+ * - If next_flag: ,NEXT_VALUE
+ * - If check_flag: ,INT_CATEGORY
+ * - If pgap_flag: ,CONSECUTIVE_PRIME_GAP
+ *
+ * Example usage:
+ *     FILE *csv_file = fopen("primes.csv", "w");
+ *     if (csv_file) {
+ *         prime_bin2csv_header(csv_file, 0, 0, 1, 1, 1);
+ *         fclose(csv_file);
+ *     }
+ */
 void prime_bin2csv_header(FILE * output,uchar verbose_flag,uchar fast_flag,uchar next_flag,uchar check_flag,uchar pgap_flag) {
     fprintf(output,"%s", "#PRIME");
     if (next_flag){
@@ -48,9 +79,42 @@ void prime_bin2csv_header(FILE * output,uchar verbose_flag,uchar fast_flag,uchar
     fprintf(output,"\n");
 }
 
-/*
-    convert the prime bin file into a csv and return the number of records processed.
-*/
+/**
+ * @brief Converts a binary file of prime numbers to a CSV format with optional additional information.
+ *
+ * This function reads prime numbers from a binary file and writes them to a CSV file.
+ * It can include additional information such as the next prime, primality check results,
+ * and prime gaps based on the provided flags.
+ *
+ * @param inputname The name of the input binary file containing prime numbers.
+ * @param outputname The name of the output CSV file to be created.
+ * @param verbose_flag If non-zero, prints progress information.
+ * @param fast_flag If zero, introduces a delay every 10000 primes processed.
+ * @param next_flag If non-zero, includes the next prime value in the CSV.
+ * @param check_flag If non-zero, includes primality check results in the CSV.
+ * @param pgap_flag If non-zero, includes prime gaps in the CSV.
+ *
+ * @return size_t The number of prime numbers processed.
+ *
+ * @note The function uses custom file handling functions like prime_open() and csv_creat().
+ * @note The Prime struct is assumed to contain at least 'p' and 'nextval' members.
+ * @note The function may introduce delays if fast_flag is not set, potentially for rate limiting.
+ *
+ * @warning This function will terminate if it cannot open the input or output files.
+ *
+ * Dependencies:
+ * - prime_open(): Function to open the binary prime file.
+ * - csv_creat(): Function to create the CSV file.
+ * - prime_bin2csv_header(): Function to write the CSV header.
+ * - prime_read(): Function to read a prime from the binary file.
+ * - check_prime(): Function to perform primality check.
+ * - prime_unread(): Function to undo a read operation on the prime file.
+ * - PRINTF: Macro or function for verbose output.
+ *
+ * Example usage:
+ *     size_t count = prime_bin2csv("primes.bin", "primes.csv", 1, 0, 1, 1, 1);
+ *     printf("Processed %zu prime numbers.\n", count);
+ */
 size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fast_flag,int next_flag,int check_flag,int pgap_flag) {
     FILE * input, * output;
     size_t count=0;
@@ -92,10 +156,41 @@ size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fas
     return count;
 }
 
-/*
-    Sieve identifies prime numbers and writes the prime along with its next value  to a binary file. 
-    Current change: move to binary file and the update the write the csv file at the end.
-*/
+/**
+ * @brief Implements the Sieve of Eratosthenes algorithm to find prime numbers up to a specified limit.
+ *
+ * This function uses a segmented sieve approach to identify prime numbers and writes them
+ * along with their next multiple to a binary file. It processes the numbers in windows of
+ * size 'buffer_size' up to 'upper_limit'.
+ *
+ * @param buffer_size The size of each segment (window) to process at a time.
+ * @param upper_limit The upper bound for prime number generation.
+ *
+ * @note This function writes prime numbers to a binary file specified by the global variable 'primesbin'.
+ * @note It uses a segmented approach to handle large ranges efficiently.
+ * @note The function includes overflow checks when compiled with GCC.
+ *
+ * Global variables used:
+ * - verbose_flag: If set, prints detailed progress information.
+ * - fast_flag: If not set, introduces delays during processing for rate limiting.
+ * - next_flag: Set to 1 if the function terminates early due to overflow.
+ * - primesbin: The name of the binary file to store prime numbers.
+ *
+ * @warning This function may terminate early if arithmetic overflow is detected.
+ * @warning Ensure sufficient memory is available for the buffer allocation.
+ *
+ * Dependencies:
+ * - prime_open(): Function to open the binary prime file.
+ * - prime_read(), prime_write(), prime_unread(): Functions for binary file I/O.
+ * - format_bytes_to_human_readable(): Function to format byte sizes.
+ * - PRINTF: Macro or function for verbose output.
+ * - NUMERIC_LITERAL: Macro for numeric literal representation.
+ *
+ * Example usage:
+ *     size_t buffer_size = 1000000;
+ *     unsigned long long upper_limit = 1000000000ULL;
+ *     sieve(buffer_size, upper_limit);
+ */
 void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     Prime cp; //current prime 
     ulonglong current_window = 0ULL;
@@ -103,7 +198,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     char * message = "Shut 'er down, Clancy, she's pumping mud!";
     uchar * is_prime = (uchar *)malloc(buffer_size * sizeof(uchar));
     if (verbose_flag) {
-        PRINTF("MALLOCED SIZE: %ld %s \n",buffer_size*sizeof(uchar), format_bytes((unsigned long long)buffer_size*sizeof(uchar)));
+        PRINTF("MALLOCED SIZE: %ld %s \n",buffer_size*sizeof(uchar), format_bytes_to_human_readable((unsigned long long)buffer_size*sizeof(uchar)));
     }
     if (is_prime == NULL) {
     // Handle allocation failure
@@ -113,7 +208,7 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     FILE * fp = prime_open(primesbin);
     for(;current_window<upper_limit;current_window+=buffer_size) {
         if (verbose_flag) { 
-            PRINTF("current_window: %llu, %s, %s\n",current_window,format_bytes(current_window),NUMERIC_LITERAL(current_window));
+            PRINTF("current_window: %llu, %s, %s\n",current_window,format_bytes_to_human_readable(current_window),NUMERIC_LITERAL(current_window));
         }
         memset(is_prime, true, buffer_size * sizeof(uchar));
         // read each prime from primes.bin
@@ -242,7 +337,8 @@ int main(int argc, char *argv[]) {
         PRINTF("================================\n");
         PRINTF("Created log file\n");
     }
-        // Set the priority to 10
+    // Set the priority to 1 , ower than normal. normally starts at 0.
+    // -20 (highest priority) to 19 (lowest priority)    
     if (setpriority(PRIO_PROCESS, 0, 1) == -1) {
         perror("setpriority");
         exit(EXIT_FAILURE);
@@ -336,8 +432,8 @@ int main(int argc, char *argv[]) {
         hardware_info();
     }
     files_remove();
-    PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
-    PRINTF("Upper limit: %llu, %s, %s\n", upper_limit,format_bytes(upper_limit), NUMERIC_LITERAL(upper_limit));
+    PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes_to_human_readable((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
+    PRINTF("Upper limit: %llu, %s, %s\n", upper_limit,format_bytes_to_human_readable(upper_limit), NUMERIC_LITERAL(upper_limit));
     sieve(window_size, upper_limit);
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);

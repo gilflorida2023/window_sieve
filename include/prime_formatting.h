@@ -15,4 +15,5 @@ extern FILE * TS_LOG;
 // NUMERIC_LITERAL(n) is not thread-safe. but this code is single-threaded.
 #define NUMERIC_LITERAL(n) (numeric_literal((n), nl_buffer, NL_BUFFER_SIZE))
 char* numeric_literal(unsigned long long n, char* buffer, size_t buffer_size);
+char* format_bytes_to_human_readable(unsigned long long bytes) ;
 #endif

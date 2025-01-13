@@ -12,20 +12,17 @@ typedef struct Prime {
 } Prime;
 #define primesbin "primes.bin"
 #define primescsv "primes.csv"
+#define true 1
+#define false 0
+#define map2buffer(val) ((unsigned int)((val) - current_window))
+#define DEFAULT_WINDOW_SIZE 100000
+#define DEFAULT_UPPER_LIMIT 1000000
 
 size_t prime_bin2csv(char *inputname ,char * outputname,int verbose_flag,int fast_flag,int next_flag,int check_flag,int pgap_flag) ;
 int prime_unread(FILE * fp) ;
 FILE * prime_open(char * filename) ;
 FILE * csv_creat(char * filename) ;
 size_t prime_read(FILE * fp, Prime *p) ;
-#define true 1
-#define false 0
-#define map2buffer(val) ((unsigned int)((val) - current_window))
-
-
-// Default values for command line options
-#define DEFAULT_WINDOW_SIZE 100000
-#define DEFAULT_UPPER_LIMIT 1000000
 
 #ifdef MAIN_MODULE
 // Global variables for command line options

@@ -61,31 +61,46 @@ char* numeric_literal(unsigned long long n, char* buffer, size_t buffer_size) {
     return &buffer[j + 1];
 }
 
-
-
-//FILE * TS_LOG = NULL;
-/*
-  Accepts same parameters as printf, but it puts a date time in front of the message.
-  its utilized with the following preprocessor macro.replacing PRINTF with timestamp_printf
-  #define PRINTF timestamp_printf
-  prime_formatting
-*/
+/**
+ * @brief Prints a formatted message with a timestamp to stdout and optionally to a log file.
+ *
+ * This function generates a timestamp with microsecond precision in ISO 8601 format
+ * and prepends it to the formatted message. The output is written to stdout and
+ * optionally to a log file if TS_LOG is defined.
+ *
+ * @param format A printf-style format string.
+ * @param ... Variable arguments to be formatted according to the format string.
+ *
+ * @note The timestamp format is: YYYY-MM-DDTHH:MM:SS.uuuuuu+HH:MM
+ *       where uuuuuu represents microseconds and +HH:MM is the timezone offset.
+ *
+ * @note This function uses the global variable TS_LOG, which should be a FILE pointer
+ *       to an open log file. If TS_LOG is NULL, no log file output occurs.
+ *
+ * @warning This function is not thread-safe due to the use of localtime().
+ *
+ * @warning The function assumes that the system's timezone is correctly set for
+ *          accurate timezone offset calculation.
+ *
+ * Example usage:
+ *     FILE* logfile = fopen("app.log", "a");
+ *     TS_LOG = logfile;
+ *     timestamp_printf("Program started with %d arguments\n", argc);
+ *     // Output to stdout and app.log: 2025-01-12T17:05:23.123456-06:00: Program started with 3 arguments
+ *     fclose(logfile);
+ */
 void timestamp_printf(const char *format, ...) {
     struct timeval tv;
     gettimeofday(&tv, NULL); // Get the current time with microsecond precision
     time_t now = tv.tv_sec;  // Get seconds
     struct tm *tm = localtime(&now); // Convert to local time
 
-    // Buffer to hold the formatted timestamp
     char timestamp[50];
     
-    // Format the timestamp with subseconds
     strftime(timestamp, sizeof(timestamp), "%FT%T", tm);
     
-    // Append subseconds and timezone offset
     snprintf(timestamp + strlen(timestamp), sizeof(timestamp) - strlen(timestamp), ".%06ld%+03ld:00", tv.tv_usec, tm->tm_gmtoff / 3600);
 
-    //printf("%s: ", timestamp);
     fprintf(stdout,"%s: ", timestamp);
     if (TS_LOG !=NULL) {
         fprintf(TS_LOG,"%s: ", timestamp);
@@ -104,6 +119,52 @@ void timestamp_printf(const char *format, ...) {
 
    va_end(args_copy);
    va_end(args);
+}
+
+/**
+ * @brief Converts a byte value to a human-readable string with appropriate unit.
+ *
+ * This function takes a byte value and converts it to a human-readable string
+ * with the most appropriate unit (B, KB, MB, GB, etc.). The result is rounded
+ * to two decimal places.
+ *
+ * @param bytes The number of bytes to format (unsigned long long).
+ * @return A pointer to a static char array containing the formatted string.
+ *         The returned string is statically allocated and should not be freed.
+ *         Subsequent calls to this function will overwrite the previous result.
+ *
+ * @note This function is not thread-safe due to the use of a static buffer.
+ *
+ * @warning The returned pointer is valid only until the next call to this function.
+ *
+ * Example usage:
+ *     unsigned long long bytes = 1500000;
+ *     char* result = format_bytes_to_human_readable(bytes);
+ *     printf("Formatted size: %s\n", result);
+ *     // Output: Formatted size: 1.50 MB
+ */
+char* format_bytes_to_human_readable(unsigned long long bytes) {
+        static char buffer[100];
+    const char* units[] = {"B", //bytes
+                           "KB", //kilo byte
+                           "MB", //mega byte
+                           "GB", // giga byte
+                           "TB", //tera byte
+                           "PB", // peta byte
+                           "EB", // hexa byte
+                           "ZB", // zetta byte
+                           "YB", // yotta byte
+                           "BB"}; // bronto byte
+    int i = 0;
+    double size = bytes;
+
+    while (size >= 1000 && i < 9) {
+        size /= 1000;
+        i++;
+    }
+
+    snprintf(buffer, sizeof(buffer), "%.2f %s", size, units[i]);
+    return buffer;
 }
 
 #ifdef PRIME_FORMATTING_MAIN
