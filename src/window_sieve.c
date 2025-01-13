@@ -286,6 +286,25 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
 }
 
 #ifdef WINDOW_SIEVE_MAIN
+/**
+ * @brief Removes the binary and CSV prime files.
+ *
+ * This function attempts to delete two files: 'primes.bin' and 'primes.csv'.
+ * If the verbose flag is set, it prints messages indicating successful deletions.
+ *
+ * @details
+ * - Attempts to remove 'primes.bin' using the remove() function.
+ * - If successful and verbose mode is on, prints a success message for 'primes.bin'.
+ * - Then attempts to remove 'primes.csv'.
+ * - If successful and verbose mode is on, prints a success message for 'primes.csv'.
+ *
+ * @note
+ * - The function assumes global variables 'primesbin' and 'primescsv' contain the file paths.
+ * - It also assumes a global 'verbose_flag' to control output verbosity.
+ * - The function does not handle or report errors if file removal fails.
+ *
+ * @return void
+ */
 void files_remove(void) {
     int result = remove(primesbin);
     if (result == 0) {
@@ -301,6 +320,35 @@ void files_remove(void) {
     } 
 }
 
+/**
+ * @brief Prints the usage information for the program.
+ *
+ * This function displays a formatted help message that includes the program name
+ * and all available command-line options with their descriptions.
+ *
+ * @param program_name The name of the program as invoked from the command line.
+ *
+ * @details
+ * The function prints the following information:
+ * - Usage syntax
+ * - Available options with their short and long forms
+ * - Brief descriptions of each option
+ * - Default values for window size and upper limit
+ *
+ * Options explained:
+ * - window_size: Sets the size of the window for the sieve algorithm
+ * - upper_limit: Sets the maximum number to check for primality
+ * - verbose: Enables detailed output during execution
+ * - check: Activates prime number validation using trial division
+ * - fast: Disables periodic yielding of processor to the system
+ * - next: Includes the next value in the output
+ * - pgap: Calculates and includes prime gaps between adjacent primes
+ * - help: Displays this usage information
+ *
+ * @note
+ * - Uses printf for output, which writes to stdout.
+ * - Assumes DEFAULT_WINDOW_SIZE and DEFAULT_UPPER_LIMIT are defined constants.
+ */
 void print_usage(const char *program_name) {
     printf("Usage: %s [options]\n", program_name);
     printf("Options:\n");
@@ -314,6 +362,35 @@ void print_usage(const char *program_name) {
     printf("  -h, --help                 Display this help message\n");
 }
 
+/**
+ * @brief Main function for the window sieve prime number generator.
+ *
+ * This function initializes the program, processes command-line arguments,
+ * sets up logging, adjusts process priority, and executes the prime number
+ * generation and processing workflow.
+ *
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return int Returns EXIT_SUCCESS on successful execution, EXIT_FAILURE otherwise.
+ *
+ * @details
+ * The function performs the following main tasks:
+ * 1. Opens a log file for writing.
+ * 2. Sets the process priority to slightly lower than normal.
+ * 3. Processes command-line options using getopt_long.
+ * 4. Validates and sets the window size and upper limit for prime generation.
+ * 5. Handles various flags for program behavior (verbose, check, fast, next, pgap).
+ * 6. Prints hardware info if in verbose mode.
+ * 7. Removes any existing output files.
+ * 8. Executes the sieve algorithm for prime number generation.
+ * 9. Converts the binary prime file to CSV format with optional processing.
+ * 10. Closes the log file and exits.
+ *
+ * @note
+ * - Uses global variables for flags and file handles (e.g., TS_LOG, verbose_flag).
+ * - Assumes the existence of several helper functions (e.g., hardware_info, files_remove).
+ * - Error handling is implemented for file operations and invalid inputs.
+ */
 int main(int argc, char *argv[]) {
     int c;
     int option_index = 0;
