@@ -7,7 +7,6 @@
  */
 
 #define _GNU_SOURCE
-#define MAIN_MODULE
 #include <stdint.h>
 #include <getopt.h>
 #include <errno.h>
@@ -19,6 +18,7 @@
 #include <prime_formatting.h>
 #include <stdlib.h>
 #include <window_sieve.h>
+
 
 /**
  * @brief Writes the header row for a CSV file containing prime number information.
@@ -286,6 +286,15 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
 }
 
 #ifdef WINDOW_SIEVE_MAIN
+// Global variables for command line options
+ size_t window_size = DEFAULT_WINDOW_SIZE;
+ ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
+ int fast_flag =0;
+ int verbose_flag =0;
+ int check_flag =0;
+ int pgap_flag =0;
+ int next_flag =0;
+
 /**
  * @brief Removes the binary and CSV prime files.
  *

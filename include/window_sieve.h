@@ -24,16 +24,6 @@ FILE * prime_open(char * filename) ;
 FILE * csv_creat(char * filename) ;
 size_t prime_read(FILE * fp, Prime *p) ;
 
-#ifdef MAIN_MODULE
-// Global variables for command line options
- size_t window_size = DEFAULT_WINDOW_SIZE;
- ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
- int fast_flag =0;
- int verbose_flag =0;
- int check_flag =0;
- int pgap_flag =0;
- int next_flag =0;
-#else
 extern size_t window_size;
 extern ulonglong upper_limit;
 extern int fast_flag ;
@@ -41,5 +31,4 @@ extern int verbose_flag ;
 extern int check_flag ;
 extern int pgap_flag ;
 extern int next_flag ;
-#endif
 #endif

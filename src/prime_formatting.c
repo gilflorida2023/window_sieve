@@ -6,6 +6,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <prime_formatting.h>
+char nl_buffer[NL_BUFFER_SIZE];
+FILE * TS_LOG = NULL;
 /*
   function: char* numeric_literal(unsigned long long n, char* buffer, size_t buffer_size) {
     Converts inout number into a string as shown:
