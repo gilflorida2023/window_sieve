@@ -440,14 +440,10 @@ int main(int argc, char *argv[]) {
             
                 unsigned long long value = strtoull(optarg, &endptr, 10);
             
-                if (errno == ERANGE) {
-                    fprintf(stderr,"Overflow occurred\n");
-                    return EXIT_FAILURE;
-                }
-            
+                // Check for conversion errors
                 if (*endptr != '\0') {
-                    fprintf(stderr,"Invalid input: not a number\n");
-                    return EXIT_FAILURE;
+                    printf("Invalid input. Please enter a valid positive integer.\n");
+                    return 1;
                 }
             
                 if (value > SIZE_MAX) {
@@ -461,17 +457,9 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 } 
                 break;
+
             case 'u':
                 upper_limit = strtoull(optarg, &endptr, 10);
-                if (upper_limit < window_size) {
-#if defined(__LP64__)
-                    char * winsize_formatstring = "Error: Upper limit %llu should be greater than or equal to window_size %llu.\n";
-#else
-                    char * winsize_formatstring = "Error: Upper limit %llu should be greater than or equal to window_size %u.\n";
-#endif
-                    fprintf(stderr, winsize_formatstring,upper_limit,window_size);
-                    return EXIT_FAILURE;
-                }
                 if (*endptr != '\0') {
                     fprintf(stderr,"Invalid input: not a number\n");
                     return EXIT_FAILURE;
@@ -508,6 +496,11 @@ int main(int argc, char *argv[]) {
     files_remove();
     PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes_to_human_readable((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
     PRINTF("Upper limit: %llu, %s, %s\n", upper_limit,format_bytes_to_human_readable(upper_limit), NUMERIC_LITERAL(upper_limit));
+    if (window_size > upper_limit){
+        fprintf(stderr,"Invalid input: window_size must be less than or equal to upper limit.\n");
+        print_usage(argv[0]);
+        return EXIT_SUCCESS;
+    }
     sieve(window_size, upper_limit);
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
