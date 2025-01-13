@@ -22,7 +22,7 @@ TARGETS = window_sieve ffcl
 
 # Targets for each binary
 window_sieve: $(SIEVE_SOURCES) $(SIEVE_HEADERS)
-	$(CC) $(CFLAGS) -DWINDOW_SIEVE_MAIN -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 ffcl: $(FFCL_SOURCES) $(FFCL_HEADERS)
 	$(CC) $(CFLAGS) -DFFCL_MAIN -o $@ $^
@@ -37,7 +37,7 @@ run_ffcl: ffcl
 	./ffcl -n 2 -c 100
 
 clean:
-	rm -f $(TARGETS) primes.*
+	rm -f $(TARGETS) primes.bin primes.csv window_sieve.log
 
 install: all # Install both binaries
 	mkdir -p $(INSTALL_DIR)

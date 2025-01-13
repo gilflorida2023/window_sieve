@@ -285,7 +285,6 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
     free(is_prime);
 }
 
-#ifdef WINDOW_SIEVE_MAIN
 // Global variables for command line options
  size_t window_size = DEFAULT_WINDOW_SIZE;
  ulonglong upper_limit = DEFAULT_UPPER_LIMIT;
@@ -516,4 +515,3 @@ int main(int argc, char *argv[]) {
     fclose(TS_LOG);
     return EXIT_SUCCESS;
 }
-#endif
