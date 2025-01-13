@@ -1,21 +1,10 @@
-/*
-performs a prime sieve which will utilize no data structure except
-a binary file and an array of enum bools as the current window. Visits a
-range of natural numbers utilizing a sliding window. it accumulates primes in the bin file.
-usually upperlimit is 1000000, so it should find 78498 primes.
-Currently utilizes unsigned long long. 
-
-~/projects/clang/window_sieve$ ./window_sieve -h
-Usage: ./window_sieve [options]
-Options:
-  -w, --window_size <size>   Set window size (default: 100000)
-  -u, --upper_limit <limit>  Set upper limit (default: 1000000)
-  -v, --verbose             Enable verbose output
-  -h, --help                Display this help message
-
-TODO: option to start from an existing file of primes. option to validate a file 
-and detemine its range.
-*/
+/**
+ * Implements the Sieve of Eratosthenes algorithm to find prime numbers up to a specified limit.
+ *
+ * This function uses a segmented sieve approach to identify prime numbers and writes them
+ * along with their next multiple to a binary file. It processes the numbers in windows of
+ * size 'buffer_size' up to 'upper_limit'.
+ */
 
 #define _GNU_SOURCE
 #define MAIN_MODULE
