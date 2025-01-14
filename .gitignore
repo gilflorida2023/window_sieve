@@ -1,4 +1,5 @@
 window_sieve
+prime_gap_analyzer
 primes.csv
 primes.bin
 .deps/
@@ -19,4 +20,3 @@ missing
 nohup.out
 *.log
 p*md
-ffcl

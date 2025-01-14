@@ -12,8 +12,6 @@ set(SOURCES
     src/prime_file.c
     src/prime_formatting.c
 )
-#set_source_files_properties(src/window_sieve.c
-#    PROPERTIES COMPILE_DEFINITIONS WINDOW_SIEVE_MAIN)
 # Check if any sources were found
 if(NOT SOURCES)
     message(FATAL_ERROR "No source files found.")
