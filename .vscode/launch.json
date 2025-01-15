@@ -5,7 +5,7 @@
             "name": "Debug window_sieve",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/window_sieve", // Path to the executable
+            "program": "${workspaceFolder}/bin/window_sieve", // Path to the executable
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -27,7 +27,7 @@
             "name": "Debug prime gap analyzer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/prime_gap_analyzer", // Path to the executable
+            "program": "${workspaceFolder}/bin/prime_gap_analyzer", // Path to the executable
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
