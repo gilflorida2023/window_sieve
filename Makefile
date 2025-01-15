@@ -1,7 +1,7 @@
 CC = gcc
 RELEASE = -O3 -s -Wall -Werror -I include
 DEBUG   = -g3 -O0 -Wall -Werror -I include
-CFLAGS = $(DEBUG)
+CFLAGS = $(RELEASE)
 
 SRCDIR = src
 INCDIR = include
@@ -9,8 +9,8 @@ INCDIR = include
 SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c $(SRCDIR)/prime_formatting.c $(SRCDIR)/prime_file.c
 SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h $(INCDIR)/prime_formatting.h $(INCDIR)/prime_file.h
 
-FFCL_SOURCES = $(SRCDIR)/prime_gap_analyzer.c
-FFCL_HEADERS = 
+PRIME_GAP_ANALYZER_SOURCES = $(SRCDIR)/prime_gap_analyzer.c
+PRIME_GAP_ANALYZER_HEADERS = 
 
 # Default install directory
 ifeq ($(shell id -u),0)
@@ -20,21 +20,19 @@ INSTALL_DIR = ~/projects/bin
 endif
 TARGETS = window_sieve prime_gap_analyzer
 
-# Targets for each binary
+all: $(TARGETS)
+
 window_sieve: $(SIEVE_SOURCES) $(SIEVE_HEADERS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-prime_gap_analyzer: $(FFCL_SOURCES) $(FFCL_HEADERS)
-	$(CC) $(CFLAGS) -DFFCL_MAIN -o $@ $^
+test_window_sieve: window_sieve
+	./window_sieve -f -v -w 100000 -u 1000000 -p
 
-# Aggregate target for all binaries
-all: $(TARGETS)
+prime_gap_analyzer: $(PRIME_GAP_ANALYZER_SOURCES) $(PRIME_GAP_ANALYZER_HEADERS)
+	$(CC) $(CFLAGS) -DPRIME_GAP_ANALYZER_MAIN -o $@ $^
 
-run_sieve: window_sieve
-	time ./window_sieve -f -v -w 100000 -u 1000000; tail primes.csv
-
-run_prime_gap_analyzer: prime_gap_analyzer
-	./prime_gap_analyzer -n 2 -c 100
+test_prime_gap_analyzer: prime_gap_analyzer
+	./prime_gap_analyzer  -n 492113 -c 114
 
 clean:
 	rm -f $(TARGETS) primes.bin primes.csv window_sieve.log
@@ -44,4 +42,4 @@ install: all # Install both binaries
 	cp window_sieve $(INSTALL_DIR)
 	cp prime_gap_analyzer $(INSTALL_DIR)
 
-.PHONY: all run_sieve run_prime_gap_analyzer clean configure install
+.PHONY: all test_window_sieve test_prime_gap_analyzer clean configure install

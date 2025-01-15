@@ -56,14 +56,14 @@ add_custom_target(clean_custom
 
 # Test targets
 add_custom_target(test_window_sieve
-    COMMAND time ./window_sieve -v -w 100000 -u 1000000 -p
+    COMMAND ./window_sieve -v -w 100000 -u 1000000 -p
     DEPENDS window_sieve
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running window_sieve test"
 )
 
 add_custom_target(test_prime_gap_analyzer
-    COMMAND time ./prime_gap_analyzer -n 492113 -c 114
+    COMMAND ./prime_gap_analyzer -n 492113 -c 114
     DEPENDS prime_gap_analyzer
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running prime_gap_analyzer test"
