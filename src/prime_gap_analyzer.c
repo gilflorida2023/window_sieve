@@ -60,12 +60,15 @@ bool is_present(const unsigned long long mainlist[], int mainlist_size, unsigned
  * @return The index where the value should be inserted, or -1 if inputs are invalid.
  */
 int find_insertion_point(const unsigned long long mainlist[], int mainlist_size, unsigned long long value) {
-    if (mainlist == NULL || mainlist_size <= 0) {
-        return -1;  // Invalid input
-    }
     int low = 0;
     int high = mainlist_size - 1;
     int insertion_point = mainlist_size; // Default: insert at the end
+    if (mainlist == NULL) {
+        return -1;  // Invalid input
+    }
+    if (mainlist_size == 0) {
+        return mainlist_size; // Empty list, insertion point is 0
+    }
 
     while (low <= high) {
         int mid = low + (high - low) / 2;
@@ -278,28 +281,7 @@ int find_factors(unsigned long long  n, int *num_factors,\
     *num_factors = remove_duplicates(factors, count) ;
     return 0;
 }
-#if 0
-#define IC_SPECIAL "SPECIAL" // 0 and 1
-#define IC_PRIME "PRIME" // numbers divisible by one and itself
-#define IC_COMPOSITE "COMPOSITE" // the rest.
-/*
-based on the number's prime factors rto determibe if its
-prime,composite, or special. only accepts positive unsigned
-long long integers.
-*/
-char * integer_classification(const unsigned long long num, \
-    const int num_factors,const unsigned long long * factors) {
-    char * return_val = NULL;
-    if (num == 1ULL || num == 0ULL ) {
-        return_val = IC_SPECIAL;
-    } else if ( num_factors == 1 && factors[0] == num ){
-               return_val = IC_PRIME;
-    }else {
-        return_val = IC_COMPOSITE;
-    }
-    return return_val;
-}
-#else
+
 /**
  * @file integer_classification.h
  * @brief Defines constants and functions for classifying integers.
@@ -349,7 +331,6 @@ char* integer_classification(const unsigned long long num,
         return IC_COMPOSITE;
     }
 }
-#endif
 //========================================
 //========================================
 //========================================
@@ -419,11 +400,10 @@ int consecutive_prime_gap_report(unsigned long long start,int count) {
         }
     }
     // display sorted and unique prime factors.
-    print_array(mainlist, mainlist_size, "#Factors ");
+    print_array(mainlist, mainlist_size, "#Unique Prime Factors ");
     return 0;
 }
 
-#ifndef FIND_FACTOR_LIB
 /**
  * @brief Prints the help message showing program usage and options.
  */
@@ -444,16 +424,16 @@ void print_help() {
  */
 int main(int argc, char *argv[]) {
 
-    // Check if no arguments were provided (argc should be 1)
-    if (argc == 1) {
-        print_help();
-        return EXIT_SUCCESS;
-    }
 
     // Variables to store the option values
     unsigned long long number = 0;
     int count = 0;
 
+    // Check if no arguments were provided (argc should be 1)
+    if (argc == 1) {
+        print_help();
+        return EXIT_SUCCESS;
+    }
     // Define the long options
     static struct option long_options[] = {
         {"number", required_argument, 0, 'n'},
@@ -508,11 +488,10 @@ int main(int argc, char *argv[]) {
                 abort(); // Should not reach here
         }
     }
-    if ( count == 0l || number == 0ull ){
+    if ( count == 0 || number == 0ull ){
        fprintf(stderr, "Must specify both count and number. count and number must be  >0.\nUsage: %s [-n|--number <unsigned long long>] [-c|--count <int>]\n", argv[0]);
        return EXIT_FAILURE;
     }
     consecutive_prime_gap_report(number,count);
     return EXIT_SUCCESS;
 }
-#endif
