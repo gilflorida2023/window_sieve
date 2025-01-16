@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
     options.next, 
     options.factors, 
     options.prime_gap) ;
-    PRINTF("%ul primes written\n", records_processed);
+    PRINTF("%lu primes written\n", records_processed);
     if (options.verbose){
         fflush(TS_LOG);
         fclose(TS_LOG);

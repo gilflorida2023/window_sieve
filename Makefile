@@ -46,7 +46,7 @@ $(BINDIR)/prime_convert: $(PRIME_CONVERT_SOURCES) $(PRIME_CONVERT_HEADERS)  | $(
 	$(CC) $(CFLAGS) -DPRIME_CONVERT_MAIN -o $@ $^
 
 test_prime_convert: $(BINDIR)/prime_convert
-	$(BINDIR)/prime_convert -i primes.bin -o primes.csv -p -n -f
+	$(BINDIR)/prime_convert -i primes.bin -o primes.csv -pnfv
 
 clean:
 	rm -f $(TARGETS) primes.bin primes.csv window_sieve.log
