@@ -144,6 +144,7 @@ struct ProgramOptions {
     int prime_gap;
     int factors;
     int next;
+    int verbose;
 };
 
 void print_usage(const char *program_name) {
@@ -154,6 +155,7 @@ void print_usage(const char *program_name) {
     printf("  -p, --prime_gap             Calculate prime gap\n");
     printf("  -f, --factors               Validate primes by factorization\n");
     printf("  -n, --next                  Write next value for debugging\n");
+    printf("  -v, --verbose               verbose output\n");
     printf("  -h, --help                  Display this help message\n");
 }
 
@@ -168,11 +170,12 @@ int main(int argc, char *argv[]) {
         {"prime_gap", no_argument, 0, 'p'},
         {"factors", no_argument, 0, 'f'},
         {"next", no_argument, 0, 'n'},
+        {"verbose", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "i:o:pfnh", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "i:o:pfnvh", long_options, &option_index)) != -1) {
         switch (c) {
             case 'i':
                 strncpy(options.input_name, optarg, MAX_FILENAME_LENGTH - 1);
@@ -190,6 +193,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'n':
                 options.next = 1;
+                break;
+            case 'v':
+                options.verbose = 1;
                 break;
             case 'h':
                 print_usage(argv[0]);
@@ -209,29 +215,45 @@ int main(int argc, char *argv[]) {
         print_usage(argv[0]);
         exit(1);
     }
-#define CSV_EXTENSION ".csv"
-if (options.output_name[0] == '\0') {
-    char *dot = strrchr(options.input_name, '.');
-    if (dot != NULL) {
-        size_t name_length = dot - options.input_name;
-        strncpy(options.output_name, options.input_name, name_length);
-        options.output_name[name_length] = '\0';
-    } else {
-        strncpy(options.output_name, options.input_name, MAX_FILENAME_LENGTH - 1);
-        options.output_name[MAX_FILENAME_LENGTH - 1] = '\0';
+    #define CSV_EXTENSION ".csv"
+    if (options.output_name[0] == '\0') {
+        char *dot = strrchr(options.input_name, '.');
+        if (dot != NULL) {
+            size_t name_length = dot - options.input_name;
+            strncpy(options.output_name, options.input_name, name_length);
+            options.output_name[name_length] = '\0';
+        } else {
+            strncpy(options.output_name, options.input_name, MAX_FILENAME_LENGTH - 1);
+            options.output_name[MAX_FILENAME_LENGTH - 1] = '\0';
+        }
+        strncat(options.output_name, CSV_EXTENSION, MAX_FILENAME_LENGTH - strlen(options.output_name) - 1);
     }
-    strncat(options.output_name, CSV_EXTENSION, MAX_FILENAME_LENGTH - strlen(options.output_name) - 1);
-}
 
-    // Print the parsed options (for demonstration purposes)
-    printf("Input file: %s\n", options.input_name);
-    printf("Output file: %s\n", options.output_name);
-    printf("Prime gap: %s\n", options.prime_gap ? "Enabled" : "Disabled");
-    printf("Factors: %s\n", options.factors ? "Enabled" : "Disabled");
-    printf("Next: %s\n", options.next ? "Enabled" : "Disabled");
+    if (options.verbose) {
+        TS_LOG = fopen("window_sieve.log", "a");
+        if (TS_LOG == NULL) {
+            perror("Error opening log file");
+            exit(EXIT_FAILURE);
+        } else {
+            PRINTF("================================\n");
+            PRINTF("Created log file\n");
+        }
+    }
+    size_t records_processed = prime_bin2csv(
+    options.input_name, 
+    options.output_name, 
+    options.verbose, 
+    0, 
+    options.next, 
+    options.factors, 
+    options.prime_gap) ;
+    PRINTF("%ul primes written\n", records_processed);
+    if (options.verbose){
+        fflush(TS_LOG);
+        fclose(TS_LOG);
+    }
+    return EXIT_SUCCESS;    
 
-    // Your main program logic goes here
-
-    return 0;
+    //return 0;
 }
 #endif
