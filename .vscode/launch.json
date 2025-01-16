@@ -24,10 +24,10 @@
 ,
 
         {
-            "name": "Debug window_sieve",
+            "name": "Debug prime convert",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/window_sieve", // Path to the executable
+            "program": "${workspaceFolder}/bin/prime_convert", // Path to the executable
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
