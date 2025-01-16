@@ -7,14 +7,14 @@ SRCDIR = src
 INCDIR = include
 BINDIR = bin
 
-SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c $(SRCDIR)/prime_formatting.c $(SRCDIR)/prime_file.c
-SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h $(INCDIR)/prime_formatting.h $(INCDIR)/prime_file.h
+SIEVE_SOURCES = $(SRCDIR)/window_sieve.c $(SRCDIR)/hardware_info.c $(SRCDIR)/trial_division.c $(SRCDIR)/prime_formatting.c $(SRCDIR)/prime_file.c $(SRCDIR)/prime_convert.c
+SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/trial_division.h $(INCDIR)/prime_formatting.h $(INCDIR)/prime_file.h $(INCDIR)/prime_convert.h
 
 PRIME_GAP_ANALYZER_SOURCES = $(SRCDIR)/prime_gap_analyzer.c
 PRIME_GAP_ANALYZER_HEADERS = 
 
-PRIME_CONVERT_SOURCES = $(SRCDIR)/prime_convert.c
-PRIME_CONVERT_HEADERS =
+PRIME_CONVERT_SOURCES = $(SRCDIR)/prime_convert.c $(SRCDIR)/prime_formatting.c $(SRCDIR)/prime_file.c $(SRCDIR)/trial_division.c 
+PRIME_CONVERT_HEADERS = $(INCDIR)/prime_convert.h $(INCDIR)/prime_formatting.h $(INCDIR)/prime_file.h $(INCDIR)/trial_division.h
 
 # Default install directory
 ifeq ($(shell id -u),0)
@@ -43,10 +43,10 @@ test_prime_gap_analyzer: $(BINDIR)/prime_gap_analyzer
 	$(BINDIR)/prime_gap_analyzer  -n 492113 -c 114
 
 $(BINDIR)/prime_convert: $(PRIME_CONVERT_SOURCES) $(PRIME_CONVERT_HEADERS)  | $(BINDIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -DPRIME_CONVERT_MAIN -o $@ $^
 
 test_prime_convert: $(BINDIR)/prime_convert
-	$(BINDIR)/prime_convert  -i primes.bin -o primes.csv -p -n -f
+	$(BINDIR)/prime_convert -i primes.bin -o primes.csv -p -n -f
 
 clean:
 	rm -f $(TARGETS) primes.bin primes.csv window_sieve.log
