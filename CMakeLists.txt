@@ -28,6 +28,9 @@ add_executable(window_sieve ${WINDOW_SIEVE_SOURCES})
 # Add executable for prime_gap_analyzer
 add_executable(prime_gap_analyzer src/prime_gap_analyzer.c)
 
+# Add executable for prime_gap_analyzer
+add_executable(prime_convert src/prime_convert.c)
+
 # Set the output directory for executables
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -50,21 +53,23 @@ endif()
 # Set include directories for the targets
 target_include_directories(window_sieve PRIVATE include)
 target_include_directories(prime_gap_analyzer PRIVATE include)
+target_include_directories(prime_convert PRIVATE include)
 
 # Custom clean target
 set(CLEAN_FILES
     ${CMAKE_BINARY_DIR}/bin/window_sieve
     ${CMAKE_BINARY_DIR}/bin/prime_gap_analyzer
+    ${CMAKE_BINARY_DIR}/bin/prime_convert
     ${CMAKE_BINARY_DIR}/CMakeCache.txt
     ${CMAKE_BINARY_DIR}/cmake_install.cmake
     ${CMAKE_BINARY_DIR}/Makefile
 )
 
-add_custom_target(clean_custom
-    COMMAND ${CMAKE_COMMAND} -E remove ${CLEAN_FILES}
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
-    COMMENT "Cleaning custom files"
-)
+#add_custom_target(clean_custom
+    #COMMAND ${CMAKE_COMMAND} -E remove ${CLEAN_FILES}
+    #COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
+    #COMMENT "Cleaning custom files"
+#)
 
 # Test targets
 add_custom_target(test_window_sieve
@@ -81,7 +86,14 @@ add_custom_target(test_prime_gap_analyzer
     COMMENT "Running prime_gap_analyzer test"
 )
 
+add_custom_target(test_prime_convert
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/prime_convert -i primes.bin -o primes.csv -fpn
+    DEPENDS prime_convert
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running prime_convert test"
+)
+
 # Add a custom target to run all tests
 add_custom_target(test_all
-    DEPENDS test_window_sieve test_prime_gap_analyzer
+    DEPENDS test_window_sieve test_prime_gap_analyzer test_prime_convert
 )
