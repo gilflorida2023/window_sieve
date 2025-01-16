@@ -13,13 +13,16 @@ SIEVE_HEADERS = $(INCDIR)/window_sieve.h $(INCDIR)/hardware_info.h $(INCDIR)/tri
 PRIME_GAP_ANALYZER_SOURCES = $(SRCDIR)/prime_gap_analyzer.c
 PRIME_GAP_ANALYZER_HEADERS = 
 
+PRIME_CONVERT_SOURCES = $(SRCDIR)/prime_convert.c
+PRIME_CONVERT_HEADERS =
+
 # Default install directory
 ifeq ($(shell id -u),0)
 INSTALL_DIR = /usr/local/bin
 else
 INSTALL_DIR = ~/projects/bin
 endif
-TARGETS = $(BINDIR)/window_sieve $(BINDIR)/prime_gap_analyzer
+TARGETS = $(BINDIR)/window_sieve $(BINDIR)/prime_gap_analyzer $(BINDIR)/prime_convert
 
 all: $(TARGETS)
 
@@ -34,10 +37,16 @@ test_window_sieve: $(BINDIR)/window_sieve
 	$(BINDIR)/window_sieve -f -v -w 100000 -u 1000000 -p
 
 $(BINDIR)/prime_gap_analyzer: $(PRIME_GAP_ANALYZER_SOURCES) $(PRIME_GAP_ANALYZER_HEADERS)  | $(BINDIR)
-	$(CC) $(CFLAGS) -DPRIME_GAP_ANALYZER_MAIN -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 test_prime_gap_analyzer: $(BINDIR)/prime_gap_analyzer
 	$(BINDIR)/prime_gap_analyzer  -n 492113 -c 114
+
+$(BINDIR)/prime_convert: $(PRIME_CONVERT_SOURCES) $(PRIME_CONVERT_HEADERS)  | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
+test_prime_convert: $(BINDIR)/prime_convert
+	$(BINDIR)/prime_convert  -i primes.bin -o primes.csv -p -n -f
 
 clean:
 	rm -f $(TARGETS) primes.bin primes.csv window_sieve.log
@@ -47,5 +56,6 @@ install: all # Install both binaries
 	mkdir -p $(INSTALL_DIR)
 	cp $(BINDIR)/window_sieve $(INSTALL_DIR)
 	cp $(BINDIR)/prime_gap_analyzer $(INSTALL_DIR)
+	cp $(BINDIR)/prime_convert $(INSTALL_DIR)
 
-.PHONY: all test_window_sieve test_prime_gap_analyzer clean configure install
+.PHONY: all test_window_sieve test_prime_gap_analyzer test_prime_convert clean configure install
