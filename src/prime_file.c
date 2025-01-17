@@ -133,6 +133,7 @@ size_t prime_write(FILE *fp, Prime * p) {
         perror("Error writing binary file");
         exit(EXIT_FAILURE);
     }
+    fflush(fp);
     return s;
 }
 

@@ -80,7 +80,7 @@ add_custom_target(test_prime_gap_analyzer
 )
 
 add_custom_target(test_prime_convert
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/prime_convert -i primes.bin -o primes.csv -fpn
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/prime_convert -i ../primes.bin -o ../primes.csv -fpn
     DEPENDS prime_convert
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running prime_convert test"
@@ -88,5 +88,5 @@ add_custom_target(test_prime_convert
 
 # Add a custom target to run all tests
 add_custom_target(test_all
-    DEPENDS test_window_sieve test_prime_gap_analyzer test_prime_convert
+    DEPENDS test_prime_gap_analyzer test_prime_convert test_window_sieve
 )
