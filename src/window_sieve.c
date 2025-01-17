@@ -74,6 +74,9 @@ void sieve(const size_t buffer_size, const ulonglong upper_limit) {
             PRINTF("current_window: %llu, %s, %s\n",current_window,format_bytes_to_human_readable(current_window),NUMERIC_LITERAL(current_window));
         }
         memset(is_prime, true, buffer_size * sizeof(uchar));
+        if (verbose_flag) { 
+            PRINTF("current_window: Initialized buffer:isprime\n");
+        }
         // read each prime from primes.bin
         // mark prime's composites which occurs in input file
         // update prime's nextval in primes.bin before proceeding
