@@ -1,7 +1,7 @@
 CC = gcc
 RELEASE = -O3 -s -Wall -Werror -I include
 DEBUG   = -g3 -O0 -Wall -Werror -I include
-CFLAGS = $(RELEASE)
+CFLAGS = $(DEBUG)
 
 SRCDIR = src
 INCDIR = include
@@ -16,13 +16,16 @@ PRIME_GAP_ANALYZER_HEADERS =
 PRIME_CONVERT_SOURCES = $(SRCDIR)/prime_convert.c $(SRCDIR)/prime_formatting.c $(SRCDIR)/prime_file.c $(SRCDIR)/trial_division.c 
 PRIME_CONVERT_HEADERS = $(INCDIR)/prime_convert.h $(INCDIR)/prime_formatting.h $(INCDIR)/prime_file.h $(INCDIR)/trial_division.h
 
+SIGNAL_HANDLER_SOURCES = $(SRCDIR)/signal_handler.c
+SIGNAL_HANDLER_HEADERS =
+
 # Default install directory
 ifeq ($(shell id -u),0)
 INSTALL_DIR = /usr/local/bin
 else
 INSTALL_DIR = ~/projects/bin
 endif
-TARGETS = $(BINDIR)/window_sieve $(BINDIR)/prime_gap_analyzer $(BINDIR)/prime_convert
+TARGETS = $(BINDIR)/window_sieve $(BINDIR)/prime_gap_analyzer $(BINDIR)/prime_convert $(BINDIR)/signal_handler
 
 all: $(TARGETS)
 
@@ -42,6 +45,12 @@ $(BINDIR)/prime_gap_analyzer: $(PRIME_GAP_ANALYZER_SOURCES) $(PRIME_GAP_ANALYZER
 test_prime_gap_analyzer: $(BINDIR)/prime_gap_analyzer
 	$(BINDIR)/prime_gap_analyzer  -n 492113 -c 114
 
+$(BINDIR)/signal_handler: $(SIGNAL_HANDLER_SOURCES) $(SIGNAL_HANDLER_HEADERS)  | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
+test_signal_handler: $(BINDIR)/signal_handler
+	$(BINDIR)/signal_handler  -n 492113 -c 114
+
 $(BINDIR)/prime_convert: $(PRIME_CONVERT_SOURCES) $(PRIME_CONVERT_HEADERS)  | $(BINDIR)
 	$(CC) $(CFLAGS) -DPRIME_CONVERT_MAIN -o $@ $^
 
@@ -58,4 +67,4 @@ install: all # Install both binaries
 	cp $(BINDIR)/prime_gap_analyzer $(INSTALL_DIR)
 	cp $(BINDIR)/prime_convert $(INSTALL_DIR)
 
-.PHONY: all test_window_sieve test_prime_gap_analyzer test_prime_convert clean configure install
+.PHONY: all test_window_sieve test_prime_gap_analyzer test_prime_convert clean configure install  test_signal_handler

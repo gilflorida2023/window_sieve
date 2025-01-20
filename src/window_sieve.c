@@ -277,24 +277,11 @@ void print_usage(const char *program_name) {
  * - Error handling is implemented for file operations and invalid inputs.
  */
 int main(int argc, char *argv[]) {
+
+#ifdef someval
     int c;
     int option_index = 0;
 
-    TS_LOG = fopen("window_sieve.log", "a");
-    if (TS_LOG == NULL) {
-        perror("Error opening log file");
-        exit(EXIT_FAILURE);
-    }else {
-        PRINTF("================================\n");
-        PRINTF("Created log file\n");
-    }
-    // Set the priority to 1 , ower than normal. normally starts at 0.
-    // -20 (highest priority) to 19 (lowest priority)    
-    if (setpriority(PRIO_PROCESS, 0, 1) == -1) {
-        perror("setpriority");
-        exit(EXIT_FAILURE);
-    }
-    PRINTF("Set nice priority to -1\n");
 
     
     static struct option long_options[] = {
@@ -366,9 +353,32 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-
-    if (verbose_flag == true) {
-        hardware_info();
+#else
+    verbose_flag=0;
+    fast_flag = 1;
+    check_flag=0;
+    pgap_flag=0;
+    next_flag=0;
+#endif    
+    if (verbose_flag){
+        TS_LOG = fopen("window_sieve.log", "a");
+        if (TS_LOG == NULL) {
+            perror("Error opening log file");
+            exit(EXIT_FAILURE);
+        }else {
+            PRINTF("================================\n");
+            PRINTF("Created log file\n");
+            hardware_info();
+        }
+    }
+    if (fast_flag == 0) {
+        // Set the priority to 1 , ower than normal. normally starts at 0.
+        // -20 (highest priority) to 19 (lowest priority)    
+        if (setpriority(PRIO_PROCESS, 0, 1) == -1) {
+            perror("setpriority");
+            exit(EXIT_FAILURE);
+        }
+        PRINTF("Set nice priority to -1\n");
     }
     files_remove();
     PRINTF("Window size: %u, %s, %s\n", window_size, format_bytes_to_human_readable((unsigned long long)window_size), NUMERIC_LITERAL((unsigned long long)window_size));
@@ -381,7 +391,9 @@ int main(int argc, char *argv[]) {
     sieve(window_size, upper_limit);
     size_t count = prime_bin2csv(primesbin, primescsv, verbose_flag, fast_flag, next_flag, check_flag, pgap_flag) ;
     PRINTF("converted %u primes\n", count);
-    fflush(TS_LOG);
-    fclose(TS_LOG);
+    if (TS_LOG != NULL) {
+        fflush(TS_LOG);
+        fclose(TS_LOG);
+    }
     return EXIT_SUCCESS;
 }
