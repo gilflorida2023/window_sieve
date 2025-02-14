@@ -1,36 +1,66 @@
+/**
+ * @file primes3.c
+ * @brief Segmented Sieve of Eratosthenes implementation for large prime number generation
+ * 
+ * This program efficiently calculates all prime numbers up to a given upper limit (1,000,000 by default)
+ * using a segmented sieve approach. It handles 64-bit integers safely with overflow checks and stores results
+ * in a binary file format. The implementation processes numbers in segments to maintain memory efficiency.
+ * 
+ * Key features:
+ * - Segmented sieve algorithm for memory optimization
+ * - 64-bit unsigned integer support for large number ranges
+ * - Overflow/underflow protection in all arithmetic operations
+ * - Binary file storage of primes with their next multiples for efficient sieving
+ * - Multi-segment processing with temporary file management
+ * 
+ * Constants:
+ * - SEGMENT_SIZE: Numbers processed per segment (100,000)
+ * - UPPER_LIMIT: Maximum number to check for primality (1,000,000)
+ * - PRIME_FILE: Output binary file storing PrimeEntry structures
+ * - TMP_FILE: Temporary file used during segment processing
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
 
-const unsigned long long SEGMENT_SIZE = 100000ULL;
-const unsigned long long UPPER_LIMIT = 1000000000ULL;
-#define PRIME_FILE "primes.bin"
-#define TMP_FILE "tmp_primes.bin"
+const unsigned long long SEGMENT_SIZE = 100000ULL; ///< Numbers processed per sieve segment
+const unsigned long long UPPER_LIMIT = 1000000ULL; ///< Maximum number to check for primality
+#define PRIME_FILE "primes.bin"      ///< Output file for storing prime entries
+#define TMP_FILE "tmp_primes.bin"    ///< Temporary file used during processing
 
+/**
+ * @brief Structure storing prime numbers and their next multiple
+ * 
+ * Used to persist sieve state between segments. For each prime found,
+ * we store the next multiple that will appear in future segments.
+ */
 typedef struct {
-    unsigned long long prime;
-    unsigned long long next_multiple;
+    unsigned long long prime;         ///< Prime number value
+    unsigned long long next_multiple; ///< Next multiple of this prime to check
 } PrimeEntry;
 
-// Global flags for signal handling
-volatile sig_atomic_t interrupted = 0;
-volatile sig_atomic_t pipe_broken = 0;
-
-void handle_sigint(int sig) {
-    interrupted = 1;
-    const char msg[] = "\nReceived interrupt. Finishing current segment...\n";
-    write(STDERR_FILENO, msg, sizeof(msg)-1); // Safe in signal handler
-}
-
-void handle_sigpipe(int sig) {
-    pipe_broken = 1;
-    const char msg[] = "\nPipe closed. Finishing current segment...\n";
-    write(STDERR_FILENO, msg, sizeof(msg)-1);
-}
-
+/**
+ * @brief Process a single segment of the number range
+ * 
+ * Handles both initial segment (using standard sieve) and subsequent segments
+ * (using persisted prime data). Marks non-primes in current segment and updates
+ * prime multiples for future segments.
+ * 
+ * @param segment Segment number to process (0-based index)
+ * 
+ * @note For segment 0:
+ * - Initializes sieve array
+ * - Runs base Sieve of Eratosthenes
+ * - Stores initial primes in PRIME_FILE
+ * 
+ * For other segments:
+ * - Reads existing primes from PRIME_FILE
+ * - Marks multiples in current segment
+ * - Updates next multiples in TMP_FILE
+ * - Atomically replaces old prime file with updated data
+ */
 void process_segment(unsigned long long segment) {
     const unsigned long long low = segment * SEGMENT_SIZE;
     const unsigned long long high = low + SEGMENT_SIZE - 1;
@@ -38,8 +68,9 @@ void process_segment(unsigned long long segment) {
     memset(is_prime, true, sizeof(is_prime));
 
     if (segment == 0) {
+        /* Handle initial segment with standard sieve */
         is_prime[0] = is_prime[1] = false;
-        
+
         for (unsigned long long i = 2; i*i <= high; ++i) {
             if (is_prime[i]) {
                 unsigned long long square;
@@ -54,6 +85,7 @@ void process_segment(unsigned long long segment) {
             }
         }
     } else {
+        /* Process subsequent segments using existing primes */
         FILE *tmp_fp = fopen(TMP_FILE, "wb");
         FILE *prime_fp = fopen(PRIME_FILE, "rb");
         
@@ -61,6 +93,7 @@ void process_segment(unsigned long long segment) {
         while (fread(&pe, sizeof(PrimeEntry), 1, prime_fp) == 1) {
             unsigned long long current = pe.next_multiple;
             
+            /* Adjust current multiple to current segment */
             while (current < low) {
                 unsigned long long new_current;
                 if (__builtin_uaddll_overflow(current, pe.prime, &new_current)) {
@@ -70,6 +103,7 @@ void process_segment(unsigned long long segment) {
                 current = new_current;
             }
 
+            /* Mark composites in current segment */
             pe.next_multiple = current;
             while (pe.next_multiple <= high) {
                 unsigned long long index;
@@ -96,6 +130,7 @@ void process_segment(unsigned long long segment) {
         rename(TMP_FILE, PRIME_FILE);
     }
 
+    /* Write new primes to output file */
     FILE *fp = fopen(PRIME_FILE, segment == 0 ? "wb" : "ab");
     const unsigned long long start = (segment == 0) ? 2 : 0;
     
@@ -117,43 +152,42 @@ void process_segment(unsigned long long segment) {
     fclose(fp);
 }
 
+/**
+ * @brief Print primes from binary file to stdout
+ * 
+ * Reads PrimeEntry structures from PRIME_FILE and prints prime values
+ * up to UPPER_LIMIT. Ensures clean output even if file contains
+ * data beyond the specified limit.
+ */
 void print_primes() {
     FILE *fp = fopen(PRIME_FILE, "rb");
     PrimeEntry pe;
     while (fread(&pe, sizeof(PrimeEntry), 1, fp) == 1) {
-        if (pe.prime > UPPER_LIMIT || pipe_broken || interrupted) break;
+        if (pe.prime > UPPER_LIMIT) break;
         printf("%llu\n", pe.prime);
-        fflush(stdout); // Ensure output gets through the pipe
     }
     fclose(fp);
 }
 
+/**
+ * @brief Main program controller
+ * 
+ * Orchestrates the segmented sieve process:
+ * 1. Removes previous prime file
+ * 2. Calculates required number of segments
+ * 3. Processes each segment sequentially
+ * 4. Prints final results
+ * 
+ * @return EXIT_SUCCESS upon normal termination
+ */
 int main() {
-    struct sigaction sa_int, sa_pipe;
-    
-    // Configure SIGINT handler
-    sa_int.sa_handler = handle_sigint;
-    sigemptyset(&sa_int.sa_mask);
-    sa_int.sa_flags = SA_RESTART;
-    sigaction(SIGINT, &sa_int, NULL);
-
-    // Configure SIGPIPE handler
-    sa_pipe.sa_handler = handle_sigpipe;
-    sigemptyset(&sa_pipe.sa_mask);
-    sa_pipe.sa_flags = SA_RESTART;
-    sigaction(SIGPIPE, &sa_pipe, NULL);
-
     remove(PRIME_FILE);
     const unsigned long long num_segments = (UPPER_LIMIT + SEGMENT_SIZE - 1) / SEGMENT_SIZE;
     
     for (unsigned long long seg = 0; seg < num_segments; ++seg) {
         process_segment(seg);
-        if (interrupted || pipe_broken) {
-            fprintf(stderr, "Early exit after completing segment %llu\n", seg);
-            break;
-        }
     }
     
     print_primes();
-    return 0;
+    return EXIT_SUCCESS;
 }
