@@ -68,12 +68,13 @@ int main() {
             }
             printf("\n");
         } else {
-
+#if 0
             printf("Not a quad: ");
             for (int i = 0; i < primes_read; i++) {
                 printf("(%" PRIu64 ", %" PRIu64 ") ", sequence_number - primes_read + 1 + i, primes[i].p); // Print sequence number and prime
             }
             printf("\n");
+#endif
             for (int i = primes_read - 1; i > 0; i--) {
                 if (prime_unread(fp) != 0) {
                     fclose(fp);
